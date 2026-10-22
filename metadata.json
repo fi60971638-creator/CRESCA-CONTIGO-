@@ -1,0 +1,7 @@
+{
+  "name": "EVALÚA",
+  "description": "Plataforma digital para la gestión de información crediticia. Organiza la información. Evalúa mejor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
