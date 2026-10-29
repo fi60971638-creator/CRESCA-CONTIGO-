@@ -10,7 +10,6 @@ import { FollowUpView } from './components/FollowUpView';
 import { DocumentsView } from './components/DocumentsView';
 import { ObservationsView } from './components/ObservationsView';
 import { ReportsView } from './components/ReportsView';
-import { FinancialAnalysisView } from './components/FinancialAnalysisView';
 import { FinancialAnalysisModule } from './components/FinancialAnalysisModule';
 import { UsersView } from './components/UsersView';
 import { ConfigView } from './components/ConfigView';
@@ -43,10 +42,12 @@ const EvaluaApp: React.FC = () => {
       return (
         <LandingView
           onEnter={() => {
-            login('zonyukimordonezcaqui@gmail.com', '12346', true);
+            setLoginAsAdmin(false);
+            setInLanding(false);
           }}
           onEnterAsAdmin={() => {
-            login('zonyukimordonezcaqui@gmail.com', '12346', true);
+            setLoginAsAdmin(true);
+            setInLanding(false);
           }}
         />
       );

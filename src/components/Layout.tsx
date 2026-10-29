@@ -18,7 +18,10 @@ import {
   RotateCcw,
   PlusCircle,
   Bell,
-  CheckCircle2
+  CheckCircle2,
+  Download,
+  UploadCloud,
+  ShieldCheck
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -38,12 +41,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     setIsNewDossierModalOpen,
     dossiers,
     financialRecords,
-    resetAllData
+    resetAllData,
+    exportBackupData,
+    importBackupData
   } = useEvalua();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
+  const [showBackupModal, setShowBackupModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [backupImportStatus, setBackupImportStatus] = useState<string | null>(null);
 
   // Core financial records module + 8 credit evaluation tasks:
   const navigationItems = [
@@ -269,84 +275,165 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
             </div>
 
-            {/* Right Tools, Notification Bell, & Fast Role Switcher */}
+            {/* Right Tools: Copia de Seguridad, Reset Demo, & Perfil Verificado */}
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* Botón de Copia de Seguridad */}
+              <button
+                title="Gestión de copias de seguridad (Exportar/Importar)"
+                onClick={() => setShowBackupModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-evalua-sky hover:bg-blue-100 text-evalua-blue border border-blue-200 text-xs font-bold transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Copia de Seguridad</span>
+              </button>
+
               {/* Reset demo data */}
               <button
                 title="Restablecer datos de prueba"
                 onClick={() => setShowResetConfirm(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-colors cursor-pointer"
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
                 <span>Reiniciar Demo</span>
               </button>
 
-              {/* Notification icon */}
-              <div className="relative">
-                <button
-                  title="Notificaciones"
-                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-evalua-sky text-slate-600 hover:text-evalua-blue flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <Bell className="w-4 h-4" />
-                </button>
-                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-evalua-yellow ring-2 ring-white" />
-              </div>
-
-              {/* Fast role switcher */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-xs font-bold text-slate-800 cursor-pointer"
-                >
-                  <Building2 className="w-3.5 h-3.5 text-evalua-blue" />
-                  <span className="hidden md:inline font-bold">{currentUser?.agency}</span>
-                  <span className="text-[10px] bg-evalua-sky text-evalua-blue px-2 py-0.5 rounded-full font-extrabold uppercase">
-                    {currentUser?.role === 'admin' ? 'Admin' : currentUser?.roleTitle.split(' ')[0]}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-
-                {showRoleSwitcher && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50">
-                    <p className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1.5">
-                      Cambiar Perfil de Usuario Demo
-                    </p>
-                    <div className="space-y-1 mt-1">
-                      {users.map((u) => (
-                        <button
-                          key={u.id}
-                          onClick={() => {
-                            switchUserRole(u.id);
-                            setShowRoleSwitcher(false);
-                          }}
-                          className={`w-full p-2.5 rounded-xl text-left text-xs transition-colors flex items-center justify-between cursor-pointer ${
-                            currentUser?.id === u.id
-                              ? 'bg-evalua-sky text-evalua-blue font-bold border border-blue-200/70'
-                              : 'text-slate-700 hover:bg-slate-50'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-bold text-slate-900">{u.name}</div>
-                            <div className="text-[11px] text-slate-500 font-medium">{u.roleTitle}</div>
-                          </div>
-                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                            {u.role}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {/* Perfil Verificado (Sin selector de rol arbitrario) */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800 select-none">
+                <Building2 className="w-3.5 h-3.5 text-evalua-blue" />
+                <span className="hidden md:inline font-bold">{currentUser?.agency}</span>
+                <span className="text-[10px] bg-evalua-sky text-evalua-blue px-2 py-0.5 rounded-full font-extrabold uppercase">
+                  {currentUser?.role === 'admin' ? 'Admin' : 'Analista'}
+                </span>
               </div>
             </div>
           </header>
 
-          {/* View Body */}
+          {/* View Body with Academic Prototype Banner */}
           <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-slate-50">
+            {/* Banner: Entorno de Demostración Huánuco 2026 */}
+            <div className="mb-6 p-3.5 rounded-2xl bg-blue-50/90 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-blue-900 shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-evalua-blue shrink-0" />
+                <span>
+                  <strong>EVALÚA · Entorno de Simulación Académica (Huánuco 2026):</strong> Los registros son referenciales y se procesan bajo los principios de la Ley N° 29733 de Protección de Datos Personales.
+                </span>
+              </div>
+              <button
+                onClick={() => setShowBackupModal(true)}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-evalua-blue hover:underline cursor-pointer shrink-0"
+              >
+                <Download className="w-3 h-3" />
+                <span>Descargar Respaldo JSON</span>
+              </button>
+            </div>
+
             {children}
           </main>
         </div>
       </div>
+
+      {/* MODAL: Copia de Seguridad y Respaldo (Exportar e Importar JSON) */}
+      {showBackupModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="p-4 bg-evalua-navy text-white flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Download className="w-5 h-5 text-evalua-yellow" />
+                <h3 className="text-sm font-bold">Copias de Seguridad y Respaldo (EVALÚA)</h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowBackupModal(false);
+                  setBackupImportStatus(null);
+                }}
+                className="text-white/70 hover:text-white p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5 text-xs text-slate-700">
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+                <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-evalua-green" />
+                  Almacenamiento Local y Portabilidad
+                </h4>
+                <p className="text-slate-600 leading-relaxed">
+                  Para garantizar que su información no se pierda al limpiar el navegador o cambiar de equipo, puede exportar e importar copias de seguridad completas en formato JSON estándar.
+                </p>
+              </div>
+
+              {/* Opción 1: Exportar Respaldo */}
+              <div className="p-4 rounded-2xl border border-blue-200 bg-blue-50/50 flex items-center justify-between gap-4">
+                <div>
+                  <span className="font-extrabold text-sm text-evalua-navy block">Exportar Base de Datos</span>
+                  <span className="text-[11px] text-slate-500 block">
+                    Descarga expedientes ({dossiers.length}), análisis financieros ({financialRecords.length}) y auditoría.
+                  </span>
+                </div>
+                <button
+                  onClick={exportBackupData}
+                  className="px-4 py-2 bg-evalua-blue hover:bg-evalua-navy text-white rounded-full font-bold shadow-xs transition-colors shrink-0 cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Descargar</span>
+                </button>
+              </div>
+
+              {/* Opción 2: Importar Respaldo */}
+              <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2.5">
+                <span className="font-extrabold text-sm text-slate-900 block">Restaurar Copia de Seguridad</span>
+                <span className="text-[11px] text-slate-500 block">
+                  Seleccione un archivo <code>.json</code> previamente exportado para recuperar sus datos:
+                </span>
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const content = event.target?.result as string;
+                        const res = importBackupData(content);
+                        if (res.success) {
+                          setBackupImportStatus('¡Copia de seguridad restaurada con éxito!');
+                        } else {
+                          setBackupImportStatus(`Error: ${res.error}`);
+                        }
+                      };
+                      reader.readAsText(file);
+                    }
+                  }}
+                  className="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-evalua-navy file:text-white hover:file:bg-evalua-blue cursor-pointer"
+                />
+
+                {backupImportStatus && (
+                  <div className={`p-2.5 rounded-xl text-xs font-bold ${
+                    backupImportStatus.includes('Error')
+                      ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                      : 'bg-emerald-50 text-evalua-green border border-emerald-200'
+                  }`}>
+                    {backupImportStatus}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+              <button
+                onClick={() => {
+                  setShowBackupModal(false);
+                  setBackupImportStatus(null);
+                }}
+                className="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-full font-bold text-xs cursor-pointer transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reset Confirmation Modal */}
       {showResetConfirm && (

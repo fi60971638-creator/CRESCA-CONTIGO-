@@ -95,10 +95,12 @@ interface EvaluaContextType {
   updateUser: (id: string, updates: Partial<User>) => void;
   toggleUserActive: (id: string) => void;
 
-  // Audit
+  // Audit & Backup Data Management
   auditLogs: AuditLog[];
   logAuditEvent: (action: string, details: string, targetCode?: string) => void;
   resetAllData: () => void;
+  exportBackupData: () => void;
+  importBackupData: (jsonString: string) => { success: boolean; error?: string };
 }
 
 const STORAGE_KEYS = {
@@ -116,21 +118,7 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
       if (saved) {
-        const parsed: User[] = JSON.parse(saved);
-        // Ensure Zonyu Kim has updated admin role and credentials
-        return parsed.map(u => {
-          if (u.email.toLowerCase() === 'zonyukimordonezcaqui@gmail.com' || u.id === 'usr-zonyu') {
-            return {
-              ...u,
-              name: 'Zonyu Kim',
-              email: 'zonyukimordonezcaqui@gmail.com',
-              password: '12346',
-              role: 'admin' as const,
-              roleTitle: 'Administrador General & Analista Senior'
-            };
-          }
-          return u;
-        });
+        return JSON.parse(saved);
       }
       return INITIAL_USERS;
     } catch {
@@ -226,6 +214,16 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const login = (emailOrUser: string, pass: string, asAdmin?: boolean) => {
     const trimmed = emailOrUser.trim().toLowerCase();
+    const cleanPass = pass.trim();
+
+    if (!trimmed) {
+      return { success: false, error: 'Por favor, ingrese su correo o usuario institucional.' };
+    }
+
+    if (!cleanPass) {
+      return { success: false, error: 'Por favor, ingrese su contraseña de acceso.' };
+    }
+
     let target = users.find(
       u => u.email.toLowerCase() === trimmed || u.name.toLowerCase() === trimmed || u.id.toLowerCase() === trimmed
     );
@@ -233,16 +231,15 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       target = users.find(u => u.role === 'admin');
     }
     if (!target) {
-      return { success: false, error: 'El usuario o correo ingresado no está registrado.' };
+      return { success: false, error: 'Credenciales inválidas. Verifique el usuario institucional ingresado.' };
     }
     if (!target.active) {
-      return { success: false, error: 'La cuenta institucional se encuentra inactiva. Contacte a Riesgos.' };
+      return { success: false, error: 'La cuenta institucional se encuentra inactiva. Contacte a Riesgos y Seguridad.' };
     }
 
-    const expectedPass = target.password || '12346';
-    const cleanPass = pass.trim();
-    if (cleanPass && cleanPass !== expectedPass && cleanPass !== '12346' && cleanPass !== 'evalua2024') {
-      return { success: false, error: 'El correo o la contraseña no son correctos.' };
+    // Validación estricta de contraseña sin contraseñas maestras ni puertas traseras
+    if (cleanPass !== target.password) {
+      return { success: false, error: 'Contraseña incorrecta. Verifique sus datos de acceso.' };
     }
 
     setCurrentUser(target);
@@ -258,16 +255,59 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const switchUserRole = (userId: string) => {
+    // Restricción: solo un administrador autenticado puede alternar perfil
+    if (currentUser?.role !== 'admin') {
+      logAuditEvent('SEGURIDAD', 'Intento no autorizado de alternar perfil de usuario.');
+      return;
+    }
     const target = users.find(u => u.id === userId);
     if (target) {
       setCurrentUser(target);
-      logAuditEvent('CAMBIO_USUARIO', `Cambió al perfil ${target.name} (${target.roleTitle})`);
+      logAuditEvent('CAMBIO_USUARIO', `Administrador alternó al perfil ${target.name} (${target.roleTitle})`);
+    }
+  };
+
+  const exportBackupData = () => {
+    const backup = {
+      app: 'EVALÚA',
+      version: '2.5.0',
+      exportedAt: new Date().toISOString(),
+      disclaimer: 'Copia de seguridad local para prototipo de evaluación crediticia.',
+      users,
+      dossiers,
+      financialRecords,
+      auditLogs
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `evalua_respaldo_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    logAuditEvent('EXPORTACION_RESPALDO', 'Descarga de copia de seguridad integral en formato JSON.');
+  };
+
+  const importBackupData = (jsonString: string): { success: boolean; error?: string } => {
+    try {
+      const data = JSON.parse(jsonString);
+      if (!data.dossiers && !data.financialRecords) {
+        return { success: false, error: 'El archivo seleccionado no corresponde a un formato de respaldo válido de EVALÚA.' };
+      }
+      if (Array.isArray(data.dossiers)) setDossiers(data.dossiers);
+      if (Array.isArray(data.financialRecords)) setFinancialRecords(data.financialRecords);
+      if (Array.isArray(data.users)) setUsers(data.users);
+      if (Array.isArray(data.auditLogs)) setAuditLogs(data.auditLogs);
+      logAuditEvent('IMPORTACION_RESPALDO', 'Restauración exitosa de expedientes desde archivo de copia de seguridad.');
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: 'Error al interpretar el archivo JSON de respaldo.' };
     }
   };
 
   const createDossier = (dossierData: Omit<CreditEvaluationDossier, 'id' | 'code' | 'createdAt' | 'updatedAt' | 'timeline'>): CreditEvaluationDossier => {
-    const nextNum = 840 + dossiers.length + 1;
-    const code = `EXP-2024-0${nextNum}`;
+    const nextNum = 100 + dossiers.length + 1;
+    const code = `EXP-2026-0${nextNum}`;
     const today = new Date().toISOString().split('T')[0];
     const nowTime = new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
 
@@ -278,18 +318,18 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       status: 'registrada',
       createdAt: today,
       updatedAt: today,
-      assignedAnalystId: currentUser?.id || 'usr-1',
-      assignedAnalystName: currentUser?.name || 'Carlos Méndez Salazar',
-      assignedAnalystRole: currentUser?.roleTitle || 'Analista de Crédito Senior',
-      agency: currentUser?.agency || 'Agencia Principal - Lima Centro',
+      assignedAnalystId: currentUser?.id || 'usr-admin-hco',
+      assignedAnalystName: currentUser?.name || 'Asesor Principal - Huánuco',
+      assignedAnalystRole: currentUser?.roleTitle || 'Asesor de Negocios & Administrador',
+      agency: currentUser?.agency || 'Agencia Principal - Huánuco',
       timeline: [
         {
           id: `tl-${Date.now()}`,
           date: today,
           time: nowTime,
           status: 'registrada',
-          responsibleName: currentUser?.name || 'Carlos Méndez Salazar',
-          responsibleRole: currentUser?.roleTitle || 'Analista de Crédito Senior',
+          responsibleName: currentUser?.name || 'Asesor Principal - Huánuco',
+          responsibleRole: currentUser?.roleTitle || 'Asesor de Negocios & Administrador',
           observation: 'Ingreso y estructuración inicial del expediente crediticio en la plataforma EVALÚA.',
           nextAction: 'Coordinar visita de verificación presencial'
         }
@@ -716,7 +756,9 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       toggleUserActive,
       auditLogs,
       logAuditEvent,
-      resetAllData
+      resetAllData,
+      exportBackupData,
+      importBackupData
     }),
     [
       currentUser,

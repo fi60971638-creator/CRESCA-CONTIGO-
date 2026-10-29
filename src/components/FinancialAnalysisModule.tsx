@@ -1836,7 +1836,7 @@ const ObligationsTab: React.FC<{
   const [newInstallment, setNewInstallment] = useState<number | ''>('');
   const [newRate, setNewRate] = useState<number | ''>(24);
   const [newRemaining, setNewRemaining] = useState<number | ''>(12);
-  const [newIsVerifiedSBS, setNewIsVerifiedSBS] = useState(true);
+  const [newIsVerifiedSBS, setNewIsVerifiedSBS] = useState(false);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1852,7 +1852,7 @@ const ObligationsTab: React.FC<{
       dueDate: 'Mensual',
       status: 'al_dia',
       isVerifiedWithSBS: newIsVerifiedSBS,
-      supportDoc: newIsVerifiedSBS ? 'Reporte SBS Sentinel Calificación Normal' : undefined
+      supportDoc: newIsVerifiedSBS ? 'Cotejado físicamente con reporte oficial' : undefined
     });
     setNewEntity('');
     setNewBalance('');
@@ -2102,10 +2102,10 @@ const SupportDocsTab: React.FC<{
       documentType: newDocType,
       relatedSection: newSection,
       relatedItemConcept: newConcept.trim() || 'General',
-      status: 'revisado',
+      status: 'pendiente',
       declaredAmount: Number(newAmount) || 0,
-      verifiedAmount: Number(newAmount) || 0,
-      isBacked: true,
+      verifiedAmount: 0,
+      isBacked: false,
       fileName: selectedFileName || 'documento_adjunto.pdf',
       fileSize: selectedFileSize || '250 KB'
     });

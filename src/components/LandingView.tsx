@@ -33,7 +33,7 @@ interface LandingViewProps {
 export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmin }) => {
   const [activeSegment, setActiveSegment] = useState<'personas' | 'empresas'>('personas');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-
+  const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -41,12 +41,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
     setOpenDropdown(prev => (prev === name ? null : name));
   };
 
-  // Sample dossiers for quick search in landing
+  // Sample dossiers for quick search in landing (Huánuco 2026 simulation)
   const quickSearchDossiers = [
-    { id: '1', code: 'EXP-2025-001', name: 'María Elena Torres Vega', doc: 'DNI 43892011', type: 'Persona con Negocio', score: 743, status: 'Aprobado', amount: 'S/ 25,000' },
-    { id: '2', code: 'EXP-2025-002', name: 'Carlos Alberto Mendoza Ruiz', doc: 'DNI 10293847', type: 'Persona Natural', score: 685, status: 'En Evaluación', amount: 'S/ 18,000' },
-    { id: '3', code: 'EXP-2025-003', name: 'Distribuidora Los Andes S.A.C.', doc: 'RUC 20601234567', type: 'Empresa', score: 780, status: 'Desembolsado', amount: 'S/ 85,000' },
-    { id: '4', code: 'EXP-2025-004', name: 'Lucía Fernández Paredes', doc: 'DNI 72910482', type: 'Persona con Negocio', score: 620, status: 'Observado', amount: 'S/ 12,000' },
+    { id: '1', code: 'EXP-2026-001', name: 'María Elena Torres Vega', doc: 'DNI 43892011', type: 'Persona con Negocio', solvency: '78%', status: 'Favorable', amount: 'S/ 25,000' },
+    { id: '2', code: 'EXP-2026-002', name: 'Carlos Alberto Mendoza Ruiz', doc: 'DNI 10293847', type: 'Persona Natural', solvency: '68%', status: 'En Evaluación', amount: 'S/ 18,000' },
+    { id: '3', code: 'EXP-2026-003', name: 'Distribuidora Los Andes S.A.C.', doc: 'RUC 20601234567', type: 'Empresa', solvency: '84%', status: 'Favorable', amount: 'S/ 85,000' },
+    { id: '4', code: 'EXP-2026-004', name: 'Lucía Fernández Paredes', doc: 'DNI 72910482', type: 'Persona con Negocio', solvency: '55%', status: 'Observado', amount: 'S/ 12,000' },
   ];
 
   const filteredDossiers = searchQuery.trim() === ''
@@ -193,6 +193,12 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
               )}
             </div>
 
+            {/* Planes y Suscripción */}
+            <a href="#planes" className="hover:text-[#0B4A8B] transition-colors py-2 flex items-center gap-1">
+              <span>Planes</span>
+              <span className="text-[10px] bg-evalua-yellow text-slate-900 font-extrabold px-1.5 py-0.2 rounded-full">30d Gratis</span>
+            </a>
+
             {/* Nosotros */}
             <a href="#funciones" className="hover:text-[#0B4A8B] transition-colors py-2">
               Nosotros
@@ -204,59 +210,66 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
             </a>
           </nav>
 
-          {/* Right Action Button: Only user Zonyu Kim */}
+          {/* Right Action Button: Institutional Login */}
           <div className="flex items-center gap-3">
             <button
               onClick={onEnter}
               className="bg-[#FFD800] hover:bg-[#F2CD00] text-black font-extrabold text-sm px-5 py-2.5 rounded-full shadow-xs hover:shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center gap-2"
-              title="Ingresar como Zonyu Kim"
+              title="Ingresar a la plataforma EVALÚA"
             >
               <div className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center">
                 <User className="w-3.5 h-3.5 text-black" />
               </div>
-              <span>Zonyu Kim</span>
+              <span>Ingresar al sistema</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* 3. HERO SECTION (Exact TransUnion Screenshot Match: Navy #003E5C, Arc Gauge, White Knob, Green 743 Badge) */}
+      {/* 3. HERO SECTION (TransUnion Replica: Navy #003E5C, Arc Gauge, White Knob, Referential Solvency Indicator) */}
       <section className="relative bg-[#003E5C] text-white overflow-hidden py-14 lg:py-20 border-b border-[#00314a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             
-            {/* Left Column: Headlines & Zonyu Kim CTA Button */}
+            {/* Left Column: Headlines & Institutional CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               className="lg:col-span-7 text-left space-y-6 z-10"
             >
-              {/* Massive Bold Headline: "Credit confidence starts here" -> "La confianza crediticia empieza aquí" */}
+              {/* Massive Bold Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-extrabold tracking-tight text-white leading-[1.08]">
-                La confianza crediticia<br />
-                empieza aquí
+                Organiza la información.<br />
+                Evalúa mejor.
               </h1>
 
-              {/* Subtitle (Matching TransUnion 2-line rhythm with EVALÚA value proposition) */}
+              {/* Subtitle */}
               <p className="text-lg sm:text-[19px] text-white/90 leading-relaxed max-w-xl font-normal">
-                Reportes claros, puntajes de crédito precisos y expedientes estructurados para evaluar con agilidad, respaldo y total objetividad.
+                Plataforma integral para asesores de créditos y analistas de negocios en Huánuco y el Perú. Expedientes unificados, flujo de caja, balance y cálculo objetivo de capacidad de pago con sustento documental.
               </p>
 
-              {/* Action Button: Dedicated Single User Access for Zonyu Kim */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 max-w-lg">
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 max-w-lg">
                 <button
                   onClick={onEnter}
                   className="bg-[#FFD800] hover:bg-[#F2CD00] text-black font-extrabold text-base px-8 py-3.5 rounded-full shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.99] cursor-pointer inline-flex items-center justify-center gap-2.5"
                 >
                   <User className="w-5 h-5" />
-                  <span>Ingresar como Zonyu Kim</span>
+                  <span>Ingresar a la plataforma</span>
                 </button>
+                <a
+                  href="#planes"
+                  className="border-2 border-white/80 hover:border-white text-white font-extrabold text-sm sm:text-base px-6 py-3.5 rounded-full transition-all hover:bg-white/10 text-center inline-flex items-center justify-center"
+                >
+                  Ver planes y 30 días gratis
+                </a>
               </div>
 
               {/* Microtext */}
-              <div className="pt-1 text-xs text-white/80 font-medium tracking-wide">
-                <span>Sesión autorizada: Zonyu Kim · Administrador General</span>
+              <div className="pt-1 text-xs text-white/80 font-medium tracking-wide flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>30 días de prueba sin costo · Conforme a la Ley N° 29733 de Protección de Datos Personales</span>
               </div>
             </motion.div>
 
@@ -328,15 +341,22 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
                   />
                 </div>
 
-                {/* Score Pill / Circle: Exact Lime Green Circle "#78C93C" with Bold "743" on Left Edge */}
+                {/* Solvency Indicator Pill / Circle: 78% Solvencia Referencial */}
                 <motion.div
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3, type: 'spring' }}
-                  className="absolute -left-3 sm:-left-6 top-[32%] -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-[#78C93C] flex items-center justify-center shadow-2xl z-20"
+                  className="absolute -left-3 sm:-left-6 top-[32%] -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-[#78C93C] flex flex-col items-center justify-center shadow-2xl z-20 text-slate-950 border-2 border-white/40 select-none"
+                  title="Indicador referencial de capacidad de pago basado en excedente verificado"
                 >
-                  <span className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-black font-sans tracking-tight">
-                    743
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-black font-sans tracking-tight leading-none">
+                    78%
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-900 mt-0.5">
+                    Solvencia
+                  </span>
+                  <span className="text-[7px] sm:text-[8px] font-semibold text-slate-800 leading-none">
+                    Capacidad
                   </span>
                 </motion.div>
 
@@ -411,8 +431,8 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="w-8 h-8 rounded-full bg-[#78C93C]/20 text-[#2E7D32] font-black text-xs flex items-center justify-center">
-                        {item.score}
+                      <span className="px-2 py-1 rounded-full bg-[#78C93C]/20 text-[#2E7D32] font-black text-xs flex items-center justify-center">
+                        {item.solvency}
                       </span>
                       <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#0B4A8B] transition-transform group-hover:translate-x-0.5" />
                     </div>
@@ -750,7 +770,164 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
         </div>
       </section>
 
-      {/* 4. SECCIÓN D: Banda Final de CTA (Azul Marino #00405F + Botón Pill Amarillo) */}
+      {/* NUEVA SECCIÓN: PLANES Y SUSCRIPCIÓN (Cumple Capítulos 3 y 4: 30 Días de Prueba y Planes) */}
+      <section id="planes" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-[#003B56] text-xs font-bold uppercase tracking-wider mb-3">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
+              Suscripción Transparente
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#00263E] tracking-tight">
+              Planes diseñados para asesores y entidades de crédito
+            </h2>
+            <p className="mt-4 text-base text-slate-600 leading-relaxed">
+              Todos los planes incluyen <strong>30 días de prueba gratuita completa</strong>, sin requerir tarjeta de crédito y con soporte técnico especializado en Huánuco y el centro del país.
+            </p>
+          </div>
+
+          {/* Pricing Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            {/* Plan 1: Asesor Independiente */}
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xs flex flex-col justify-between hover:shadow-lg transition-all">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-slate-900">Asesor Independiente</h3>
+                </div>
+                <p className="text-xs text-slate-500 mb-6">
+                  Para asesores de crédito y analistas de negocios independientes.
+                </p>
+                <div className="flex items-baseline gap-1 mb-6 pb-6 border-b border-slate-100">
+                  <span className="text-4xl font-black text-[#00263E]">S/ 49</span>
+                  <span className="text-xs text-slate-500 font-semibold">/ mes</span>
+                </div>
+                <ul className="space-y-3 text-xs text-slate-700 mb-8">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Hasta 50 expedientes activos</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>10 pestañas de análisis financiero completas</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Cálculo automático de capacidad de pago</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Exportación de informes ejecutivos en PDF</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Copia de seguridad local en JSON</span>
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={onEnter}
+                className="w-full py-3 px-4 rounded-full border-2 border-[#003B56] text-[#003B56] hover:bg-[#003B56] hover:text-white font-extrabold text-xs transition-colors cursor-pointer text-center"
+              >
+                Comenzar prueba gratis de 30 días
+              </button>
+            </div>
+
+            {/* Plan 2: Equipo Profesional (Recomendado) */}
+            <div className="bg-white rounded-3xl p-8 border-2 border-[#00405F] shadow-xl flex flex-col justify-between relative transform md:-translate-y-2">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#FFD800] text-black text-[11px] font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-md">
+                Más elegido en agencias
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-slate-900">Equipo Profesional</h3>
+                </div>
+                <p className="text-xs text-slate-500 mb-6">
+                  Para agencias comerciales y equipos de asesoría con múltiples analistas.
+                </p>
+                <div className="flex items-baseline gap-1 mb-6 pb-6 border-b border-slate-100">
+                  <span className="text-4xl font-black text-[#00263E]">S/ 129</span>
+                  <span className="text-xs text-slate-500 font-semibold">/ mes</span>
+                </div>
+                <ul className="space-y-3 text-xs text-slate-700 mb-8">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span><strong>Expedientes ilimitados</strong></span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Hasta 5 usuarios (Administrador + Analistas)</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Control documental de sustento declarado vs verificado</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Historial y trazabilidad de cambios por usuario</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Soporte preferente por WhatsApp y correo</span>
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={onEnter}
+                className="w-full py-3.5 px-4 rounded-full bg-[#FFD800] hover:bg-[#F2CD00] text-black font-extrabold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer text-center"
+              >
+                Iniciar prueba de 30 días sin costo
+              </button>
+            </div>
+
+            {/* Plan 3: Institucional */}
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xs flex flex-col justify-between hover:shadow-lg transition-all">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-slate-900">Institucional / Coopac</h3>
+                </div>
+                <p className="text-xs text-slate-500 mb-6">
+                  Para cooperativas de ahorro y crédito, ONGs y entidades microfinancieras.
+                </p>
+                <div className="flex items-baseline gap-1 mb-6 pb-6 border-b border-slate-100">
+                  <span className="text-4xl font-black text-[#00263E]">S/ 299</span>
+                  <span className="text-xs text-slate-500 font-semibold">/ mes</span>
+                </div>
+                <ul className="space-y-3 text-xs text-slate-700 mb-8">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Usuarios y agencias ilimitadas</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Políticas y límites de riesgo personalizados</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Módulo de auditoría y cumplimiento normativo</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Capacitación presencial/virtual al equipo</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Acuerdo de nivel de servicio (SLA) 99.9%</span>
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={onEnter}
+                className="w-full py-3 px-4 rounded-full border-2 border-slate-300 text-slate-700 hover:border-[#003B56] hover:text-[#003B56] font-extrabold text-xs transition-colors cursor-pointer text-center"
+              >
+                Solicitar demo y prueba 30 días
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. SECCIÓN D: Banda Final de CTA */}
       <section className="bg-evalua-navy py-14 px-4 sm:px-6 lg:px-8 text-white relative overflow-hidden">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
           <div className="space-y-2">
@@ -758,7 +935,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
               Comienza a gestionar tu cartera con rigor y agilidad
             </h3>
             <p className="text-slate-300 text-sm sm:text-base max-w-xl">
-              Sin hojas de cálculo dispersas. Toda la evaluación crediticia en una plataforma segura y auditable.
+              Sin hojas de cálculo dispersas. Toda la evaluación crediticia en una sola plataforma estructurada y auditable.
             </p>
           </div>
 
@@ -767,9 +944,9 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
               variant="primary"
               size="lg"
               onClick={onEnter}
-              className="text-slate-950 font-bold px-8 shadow-xl"
+              className="text-slate-950 font-bold px-8 shadow-xl cursor-pointer"
             >
-              Ingresar como Zonyu Kim
+              Ingresar a la plataforma
             </Button>
           </div>
         </div>
@@ -792,7 +969,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
                 Información que impulsa decisiones.
               </p>
               <p className="text-slate-400 text-xs max-w-sm leading-relaxed">
-                Plataforma tecnológica orientada a asesores de negocios, analistas de crédito y microfinancieras en el Perú.
+                Plataforma tecnológica orientada a asesores de negocios, analistas de crédito y microfinancieras en Huánuco y el Perú.
               </p>
             </div>
 
@@ -813,7 +990,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
               <ul className="space-y-2">
                 <li><a href="#beneficios" className="hover:text-white transition-colors">Nosotros</a></li>
                 <li><a href="#funciones" className="hover:text-white transition-colors">Metodología</a></li>
-                <li><a href="#funciones" className="hover:text-white transition-colors">Seguridad de Datos</a></li>
+                <li><a href="#planes" className="hover:text-white transition-colors">Planes y Precios</a></li>
                 <li><a href="#contacto" className="hover:text-white transition-colors">Contacto</a></li>
               </ul>
             </div>
@@ -822,10 +999,10 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
             <div className="space-y-3">
               <h4 className="text-white font-bold uppercase tracking-wider text-xs">Soporte & Legal</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">Centro de Ayuda</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Términos de Servicio</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Política de Privacidad</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Cumplimiento Regulatorio</a></li>
+                <li><a href="#contacto" className="hover:text-white transition-colors">Centro de Ayuda</a></li>
+                <li><button onClick={() => setPrivacyModalOpen(true)} className="hover:text-white transition-colors cursor-pointer text-left">Términos de Servicio</button></li>
+                <li><button onClick={() => setPrivacyModalOpen(true)} className="hover:text-white transition-colors cursor-pointer text-left font-semibold text-blue-400">Política de Privacidad (Ley 29733)</button></li>
+                <li><button onClick={() => setPrivacyModalOpen(true)} className="hover:text-white transition-colors cursor-pointer text-left">Tratamiento de Datos</button></li>
               </ul>
             </div>
           </div>
@@ -833,14 +1010,56 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
           {/* Legal Notice & Copyright */}
           <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left text-slate-500">
             <p className="max-w-3xl leading-relaxed text-[11px]">
-              <strong>Aviso legal:</strong> EVALÚA es un software de gestión y organización de información financiera para apoyar la labor de evaluación. No aprueba ni otorga créditos, ni garantiza su desembolso. Las decisiones crediticias corresponden exclusivamente a las entidades y asesores facultados.
+              <strong>Aviso legal:</strong> EVALÚA es un software de gestión y organización de información financiera para apoyar la labor técnica del asesor. No aprueba ni otorga créditos, ni garantiza su desembolso. Las decisiones crediticias corresponden exclusivamente a las entidades y asesores facultados.
             </p>
-            <p className="shrink-0 text-[11px]">
-              © {new Date().getFullYear()} EVALÚA S.A.C. Todos los derechos reservados.
+            <p className="shrink-0 text-[11px] font-medium">
+              © {new Date().getFullYear()} EVALÚA. Todos los derechos reservados.
             </p>
           </div>
         </div>
       </footer>
+
+      {/* MODAL DE POLÍTICA DE PRIVACIDAD Y PROTECCIÓN DE DATOS (LEY N° 29733) */}
+      {privacyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 text-slate-300 max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2 text-white font-bold text-base">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                <span>Política de Protección de Datos Personales (Ley N° 29733)</span>
+              </div>
+              <button
+                onClick={() => setPrivacyModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs leading-relaxed text-slate-300">
+              <p>
+                <strong>1. Titularidad y Finalidad:</strong> La plataforma <strong>EVALÚA</strong> procesa información financiera y crediticia con fines estrictamente orientados a la organización técnica, cálculo de ratios, análisis de estados financieros y capacidad de pago para uso exclusivo de asesores y analistas de crédito autorizados.
+              </p>
+              <p>
+                <strong>2. Cumplimiento Normativo (Perú):</strong> De conformidad con la <strong>Ley N° 29733</strong> (Ley de Protección de Datos Personales del Perú) y su Reglamento aprobado por D.S. 003-2013-JUS, los datos declarados y documentados de los solicitantes son confidenciales y no son transferidos a terceros con fines publicitarios ni comerciales.
+              </p>
+              <p>
+                <strong>3. Derechos ARCO:</strong> Los titulares de los datos pueden ejercer sus derechos de Acceso, Rectificación, Cancelación y Oposición remitiendo su solicitud a través de la opción de contacto de EVALÚA o dirigiendo su requerimiento al administrador del sistema.
+              </p>
+              <p>
+                <strong>4. Resguardo de la Información:</strong> Los expedientes y documentación sustentatoria se almacenan de manera controlada y auditable, distinguiendo claramente las partidas declaradas por el cliente de aquellas respaldadas con documentación verificada.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-slate-800 flex justify-end">
+              <button
+                onClick={() => setPrivacyModalOpen(false)}
+                className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors cursor-pointer"
+              >
+                Entendido y Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

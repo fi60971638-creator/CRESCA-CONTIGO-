@@ -34,7 +34,6 @@ import {
   Wallet,
   ClipboardCheck
 } from 'lucide-react';
-import { ScoreRing } from './ui/ScoreRing';
 
 interface ApplicationDetailModalProps {
   dossierId: string | null;
@@ -330,31 +329,35 @@ export const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* Score Indicator & Ficha Solicitante */}
+              {/* Indicador de Capacidad de Pago Referencial & Ficha Solicitante */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-slate-950/60 p-4 rounded-xl border border-slate-800">
                 <div className="md:col-span-4 flex flex-col items-center justify-center p-3 text-center border-b md:border-b-0 md:border-r border-slate-800">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                    Score Crediticio Evaluado
+                    Capacidad de Pago Referencial
                   </span>
-                  <ScoreRing
-                    score={
-                      pc.remainingSurplusAfterProposedInstallment >= 1500
-                        ? 765
-                        : pc.remainingSurplusAfterProposedInstallment >= 500
-                        ? 743
+                  <div className={`p-4 rounded-2xl border w-full flex flex-col items-center text-center ${
+                    pc.remainingSurplusAfterProposedInstallment >= 1200
+                      ? 'bg-emerald-950/40 border-emerald-600/50 text-emerald-300'
+                      : pc.remainingSurplusAfterProposedInstallment >= 0
+                      ? 'bg-amber-950/40 border-amber-600/50 text-amber-300'
+                      : 'bg-rose-950/40 border-rose-600/50 text-rose-300'
+                  }`}>
+                    <span className="text-3xl font-extrabold font-mono tracking-tight">
+                      S/ {pc.remainingSurplusAfterProposedInstallment.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                    </span>
+                    <span className="text-[11px] font-bold uppercase tracking-wide mt-1">
+                      {pc.remainingSurplusAfterProposedInstallment >= 1200
+                        ? 'Excedente Favorable'
                         : pc.remainingSurplusAfterProposedInstallment >= 0
-                        ? 675
-                        : 520
-                    }
-                    minScore={300}
-                    maxScore={850}
-                    size="md"
-                    showBadge={true}
-                    badgePosition="left"
-                    animate={false}
-                  />
-                  <p className="text-[11px] text-slate-400 mt-2 font-medium">
-                    {pc.remainingSurplusAfterProposedInstallment >= 0 ? 'Capacidad de pago confirmada' : 'Riesgo por excedente negativo'}
+                        ? 'Excedente Ajustado'
+                        : 'Déficit de Flujo'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 mt-1">
+                      Cobertura: {(dossier.ratios?.debtCoverageRatio || (pc.proposedInstallment > 0 ? pc.availableFlow / pc.proposedInstallment : 1.35)).toFixed(2)}x cuota
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-2.5 font-normal leading-tight text-center">
+                    * Estimación interna según partidas declaradas y sustentadas. EVALÚA no aprueba créditos ni emite score de centrales de riesgo.
                   </p>
                 </div>
                 <div className="md:col-span-8 space-y-3 text-xs">

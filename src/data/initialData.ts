@@ -19,16 +19,28 @@ import {
 
 export const INITIAL_USERS: User[] = [
   {
-    id: 'usr-zonyu',
-    name: 'Zonyu Kim',
-    email: 'zonyukimordonezcaqui@gmail.com',
-    password: '12346',
+    id: 'usr-admin-hco',
+    name: 'Asesor Principal - Huánuco',
+    email: 'admin@evalua.pe',
+    password: 'Evaluacion2026!Hco',
     role: 'admin',
-    roleTitle: 'Administrador General & Analista Senior',
-    agency: 'Sede Central & Agencia Principal - Lima',
-    phone: '987-654-321',
+    roleTitle: 'Asesor de Negocios & Administrador',
+    agency: 'Agencia Principal - Huánuco',
+    phone: '062-512345',
     active: true,
-    createdAt: '2024-01-10'
+    createdAt: '2026-01-15'
+  },
+  {
+    id: 'usr-analista-hco',
+    name: 'Analista de Riesgos Huánuco',
+    email: 'analista@evalua.pe',
+    password: 'Analista2026!Hco',
+    role: 'analyst',
+    roleTitle: 'Analista de Crédito y Riesgos',
+    agency: 'Agencia Amarilis - Huánuco',
+    phone: '062-519876',
+    active: true,
+    createdAt: '2026-02-01'
   }
 ];
 
@@ -126,39 +138,39 @@ const juanRatios = calculateFinancialRatios(
 export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
   {
     id: 'dos-001',
-    code: 'EXP-2024-0842',
+    code: 'EXP-2026-001',
     status: 'en_evaluacion',
-    createdAt: '2024-09-05',
-    updatedAt: '2024-09-10',
-    assignedAnalystId: 'usr-1',
-    assignedAnalystName: 'Carlos Méndez Salazar',
-    assignedAnalystRole: 'Analista de Crédito Senior',
-    agency: 'Agencia Principal - Lima Centro',
+    createdAt: '2026-03-05',
+    updatedAt: '2026-03-10',
+    assignedAnalystId: 'usr-admin-hco',
+    assignedAnalystName: 'Asesor Principal - Huánuco',
+    assignedAnalystRole: 'Asesor de Negocios & Administrador',
+    agency: 'Agencia Principal - Huánuco',
 
     personal: {
       firstNames: 'Juan',
       paternalSurname: 'Pérez',
       maternalSurname: 'López',
-      fullName: 'Juan Pérez López',
+      fullName: 'Juan Pérez López [DATO DE EJEMPLO]',
       documentType: 'DNI',
       documentNumber: '41892015',
       birthDate: '1986-04-12',
-      age: 38,
+      age: 39,
       maritalStatus: 'Casado(a)',
       dependentsCount: 2,
-      homeAddress: 'Av. Las Palmeras 450',
-      district: 'Los Olivos',
-      province: 'Lima',
-      department: 'Lima',
-      phone: '984-512-309',
-      email: 'bodega.perez@gmail.com'
+      homeAddress: 'Jr. General Prado 640',
+      district: 'Huánuco',
+      province: 'Huánuco',
+      department: 'Huánuco',
+      phone: '962-512-309',
+      email: 'juan.perez.demo@evalua.pe'
     },
 
     business: {
-      businessName: 'Bodega y Abarrotes "Don Juan"',
+      businessName: 'Bodega y Abarrotes "Don Juan" [EJEMPLO HUÁNUCO]',
       activityType: 'Comercio Minorista de Abarrotes y Bebidas',
       sector: 'Comercio',
-      businessAddress: 'Av. Las Palmeras 450 (Local en 1er piso de vivienda propia)',
+      businessAddress: 'Jr. Huánuco 320 (Cerca al Mercado Modelo de Huánuco)',
       operatingTimeYears: 6,
       operatingTimeMonths: 3,
       businessType: 'Propio',
