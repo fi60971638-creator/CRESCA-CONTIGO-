@@ -1,21 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --color-evalua-navy: #00405F;
-  --color-evalua-blue: #0B4A8B;
-  --color-evalua-green: #2DB534;
+  --color-evalua-electric: #1D63ED;
+  --color-evalua-navy: #0B2545;
+  --color-evalua-blue: #1D63ED;
+  --color-evalua-green: #16A34A;
+  --color-evalua-amber: #F59E0B;
+  --color-evalua-purple: #8B5CF6;
+  --color-evalua-cyan: #0EA5E9;
   --color-evalua-yellow: #FFD800;
-  --color-evalua-sky: #EEF5FB;
+  --color-evalua-sky: #EFF6FF;
   --color-evalua-lightgreen: #8BD04F;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer base {
   body {
     font-family: var(--font-sans);
-    color: #1e293b;
-    background-color: #f8fafc;
+    color: #0F172A;
+    background-color: #F6F9FC;
   }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Conic gradient for TransUnion-style credit score gauge */

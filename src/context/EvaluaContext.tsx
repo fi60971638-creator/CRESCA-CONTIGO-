@@ -135,7 +135,7 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   });
 
-  const [activeTab, setActiveTab] = useState<string>('solicitudes');
+  const [activeTab, setActiveTab] = useState<string>('panel_principal');
   const [selectedDossierId, setSelectedDossierId] = useState<string | null>(null);
   const [modalInitialTab, setModalInitialTab] = useState<string>('solicitante');
   const [isNewDossierModalOpen, setIsNewDossierModalOpen] = useState(false);

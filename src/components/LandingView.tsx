@@ -625,7 +625,7 @@ export const LandingView: React.FC<LandingViewProps> = ({ onEnter, onEnterAsAdmi
                         <span className="text-[11px] text-slate-500 block">DNI: 43892011 · Persona con Negocio</span>
                       </div>
                       <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-evalua-green border border-emerald-300">
-                        Score 743 · Favorable
+                        Capacidad 78% · Referencial
                       </span>
                     </div>
 

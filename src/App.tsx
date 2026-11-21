@@ -17,6 +17,8 @@ import { NewDossierWizardModal } from './components/NewDossierWizardModal';
 import { ApplicationDetailModal } from './components/ApplicationDetailModal';
 import { PrintApplicationModal } from './components/PrintApplicationModal';
 import { CreditModuleIndependentView } from './components/CreditModuleIndependentView';
+import { ExpedientesView } from './components/ExpedientesView';
+import { ReferencesView } from './components/ReferencesView';
 
 const EvaluaApp: React.FC = () => {
   const {
@@ -29,8 +31,7 @@ const EvaluaApp: React.FC = () => {
     setIsPrintModalOpen,
     isNewDossierModalOpen,
     setIsNewDossierModalOpen,
-    dossiers,
-    login
+    dossiers
   } = useEvalua();
 
   const [inLanding, setInLanding] = useState(true);
@@ -62,8 +63,14 @@ const EvaluaApp: React.FC = () => {
 
   return (
     <Layout>
+      {/* Panel principal & Expedientes */}
+      {(activeTab === 'panel_principal' || activeTab === 'inicio') && <DashboardView />}
+      {activeTab === 'expedientes' && <ExpedientesView />}
+
       {/* Primary Financial Analysis Module */}
-      {activeTab === 'registro_financiero' && <FinancialAnalysisModule />}
+      {(activeTab === 'registro_financiero' || activeTab === 'analisis_financiero') && (
+        <FinancialAnalysisModule />
+      )}
 
       {/* Tab Routes - Solicitud & 8 Independent Credit Modules */}
       {activeTab === 'solicitudes' && <ApplicationsView />}
@@ -76,13 +83,12 @@ const EvaluaApp: React.FC = () => {
       {activeTab === 'inventario_documentos' && <CreditModuleIndependentView moduleId="inventario_documentos" />}
       {activeTab === 'conclusion' && <CreditModuleIndependentView moduleId="conclusion" />}
 
-      {/* Fallback legacy tab routes */}
-      {activeTab === 'inicio' && <ApplicationsView />}
-      {activeTab === 'solicitantes' && <CreditModuleIndependentView moduleId="solicitante" />}
-      {activeTab === 'analisis_financiero' && <FinancialAnalysisModule />}
-      {activeTab === 'seguimiento' && <ApplicationsView />}
-      {activeTab === 'documentos' && <CreditModuleIndependentView moduleId="inventario_documentos" />}
-      {activeTab === 'observaciones' && <CreditModuleIndependentView moduleId="conclusion" />}
+      {/* Referencias, Observaciones, Seguimiento, Reportes y Administración */}
+      {activeTab === 'referencias' && <ReferencesView />}
+      {activeTab === 'observaciones' && <ObservationsView />}
+      {activeTab === 'seguimiento' && <FollowUpView />}
+      {activeTab === 'solicitantes' && <ApplicantsView />}
+      {activeTab === 'documentos' && <DocumentsView />}
       {activeTab === 'reportes' && <ReportsView />}
       {activeTab === 'usuarios' && <UsersView />}
       {activeTab === 'configuracion' && <ConfigView />}
