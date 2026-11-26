@@ -16,32 +16,32 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   const sizeClasses = {
     sm: 'text-[11px] px-2 py-0.5 gap-1 font-semibold',
-    md: 'text-xs px-2.5 py-1 gap-1.5 font-bold',
+    md: 'text-xs px-2.5 py-0.5 gap-1.5 font-semibold',
   };
 
   const variantClasses = {
-    success: 'bg-emerald-50 text-evalua-green border border-emerald-200/80',
-    warning: 'bg-amber-50 text-amber-700 border border-amber-200/80',
-    danger: 'bg-rose-50 text-rose-700 border border-rose-200/80',
-    navy: 'bg-[#00405F]/10 text-evalua-navy border border-[#00405F]/20',
-    blue: 'bg-[#0B4A8B]/10 text-evalua-blue border border-[#0B4A8B]/20',
-    sky: 'bg-evalua-sky text-evalua-blue border border-blue-200/60',
-    neutral: 'bg-slate-100 text-slate-700 border border-slate-200',
+    success: 'bg-[#ECFDF5] text-[#028448] border border-[#A7F3D0]',
+    warning: 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]',
+    danger: 'bg-[#FEF2F2] text-[#C81E1E] border border-[#FECACA]',
+    navy: 'bg-[#072146]/10 text-[#072146] border border-[#072146]/20',
+    blue: 'bg-[#F0F5FA] text-[#004481] border border-[#B8D0E6]',
+    sky: 'bg-[#F0F5FA] text-[#1464A5] border border-[#B8D0E6]',
+    neutral: 'bg-[#F7F8FA] text-[#374151] border border-[#E2E6EC]',
   };
 
   const dotColors = {
-    success: 'bg-evalua-green',
-    warning: 'bg-amber-500',
-    danger: 'bg-rose-500',
-    navy: 'bg-evalua-navy',
-    blue: 'bg-evalua-blue',
-    sky: 'bg-sky-500',
-    neutral: 'bg-slate-400',
+    success: 'bg-[#028448]',
+    warning: 'bg-[#B45309]',
+    danger: 'bg-[#C81E1E]',
+    navy: 'bg-[#072146]',
+    blue: 'bg-[#004481]',
+    sky: 'bg-[#1464A5]',
+    neutral: 'bg-[#6B7280]',
   };
 
   return (
     <span
-      className={`inline-flex items-center rounded-full tracking-wide select-none ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+      className={`inline-flex items-center rounded select-none ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {dot && (

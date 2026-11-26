@@ -139,16 +139,73 @@ export const PrintApplicationModal: React.FC<PrintApplicationModalProps> = ({
           </div>
 
           {/* 4. Situación Patrimonial & Balance General */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-evalua-blue">
-              4. Situación Patrimonial (Balance General)
-            </h2>
-            <div className="grid grid-cols-3 gap-2.5 text-center text-[11px]">
-              <div><span className="text-[10px] text-slate-500 block font-semibold">Total Activos</span><strong className="text-evalua-green">S/ {bs.totalAssets.toLocaleString()}</strong></div>
-              <div><span className="text-[10px] text-slate-500 block font-semibold">Total Pasivos</span><strong className="text-rose-600">S/ {bs.totalLiabilities.toLocaleString()}</strong></div>
-              <div><span className="text-[10px] text-slate-500 block font-semibold">Patrimonio Neto</span><strong className="text-evalua-blue">S/ {bs.equity.toLocaleString()}</strong></div>
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-extrabold uppercase tracking-wider text-evalua-blue">
+                4. Situación Patrimonial (Balance General)
+              </h2>
+              <span className="text-[10px] text-slate-500 font-semibold">
+                {d.balanceSheetDetail?.evaluationPeriod ? `Período: ${d.balanceSheetDetail.evaluationPeriod} · ` : ''}
+                Fecha: {d.balanceSheetDetail?.balanceDate || d.createdAt}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-[11px] border-b border-slate-200 pb-2.5">
+              <div><span className="text-[10px] text-slate-500 block font-semibold">Activo Corriente</span><strong className="text-slate-800 font-mono tabular-nums">S/ {bs.totalCurrentAssets.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+              <div><span className="text-[10px] text-slate-500 block font-semibold">Activo No Corriente</span><strong className="text-slate-800 font-mono tabular-nums">S/ {bs.totalNonCurrentAssets.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+              <div><span className="text-[10px] text-slate-500 block font-semibold">Total Activos</span><strong className="text-evalua-green font-mono tabular-nums">S/ {bs.totalAssets.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+              <div><span className="text-[10px] text-slate-500 block font-semibold">Total Pasivos</span><strong className="text-rose-600 font-mono tabular-nums">S/ {bs.totalLiabilities.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+              <div><span className="text-[10px] text-slate-500 block font-semibold">Patrimonio Neto</span><strong className="text-evalua-blue font-mono tabular-nums">S/ {bs.equity.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] text-slate-600">
+              <div>Caja y Bancos: <strong className="font-mono text-slate-900">S/ {(bs.cash + bs.bankDeposits).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+              <div>Inventarios (Conectado): <strong className="font-mono text-slate-900">S/ {bs.inventoryValue.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+              <div>Cuentas por Cobrar: <strong className="font-mono text-slate-900">S/ {bs.accountsReceivableValue.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
+              <div>Pasivo Cte / No Cte: <strong className="font-mono text-slate-900">S/ {bs.totalCurrentLiabilities.toLocaleString('es-PE', { minimumFractionDigits: 2 })} / S/ {bs.totalNonCurrentLiabilities.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</strong></div>
             </div>
           </div>
+
+          {/* 4.1 Inventario Valorizado Conectado */}
+          {d.inventory.length > 0 && (
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-extrabold uppercase tracking-wider text-evalua-blue">
+                  Inventario del Negocio ({d.inventory.length} productos)
+                </h2>
+                <span className="text-[11px] font-bold font-mono text-evalua-navy tabular-nums">
+                  Valor Total al Costo: S/ {d.inventory.reduce((sum, i) => sum + i.totalCostValue, 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <table className="w-full text-left text-[10px] border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-300 text-slate-600 font-bold">
+                    <th className="py-1 pr-2">Código</th>
+                    <th className="py-1 pr-2">Producto</th>
+                    <th className="py-1 pr-2">Categoría</th>
+                    <th className="py-1 pr-2 text-right">Cant.</th>
+                    <th className="py-1 pr-2 text-right">Costo Unit.</th>
+                    <th className="py-1 text-right">Valor Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/70">
+                  {d.inventory.slice(0, 15).map((inv, idx) => (
+                    <tr key={inv.id}>
+                      <td className="py-1 pr-2 font-mono text-slate-500">{inv.code || `INV-${String(idx + 1).padStart(3, '0')}`}</td>
+                      <td className="py-1 pr-2 font-semibold text-slate-900">{inv.productName}</td>
+                      <td className="py-1 pr-2 text-slate-600">{inv.category || 'Mercadería'}</td>
+                      <td className="py-1 pr-2 text-right font-mono tabular-nums">{inv.quantity} {inv.unit || 'unid.'}</td>
+                      <td className="py-1 pr-2 text-right font-mono tabular-nums">S/ {inv.unitCost.toFixed(2)}</td>
+                      <td className="py-1 text-right font-mono font-bold text-slate-900 tabular-nums">S/ {inv.totalCostValue.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {d.inventory.length > 15 && (
+                <p className="text-[9px] text-slate-500 italic">
+                  * Se muestran los primeros 15 artículos de {d.inventory.length} registrados en el expediente.
+                </p>
+              )}
+            </div>
+          )}
 
           {/* 5. Obligaciones, Flujo de Caja & Capacidad de Pago */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">

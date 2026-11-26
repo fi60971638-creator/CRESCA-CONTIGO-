@@ -21,18 +21,18 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
     <div className={`max-w-3xl mb-12 ${alignClass}`}>
       {eyebrow && (
         <span
-          className={`inline-block text-xs font-extrabold uppercase tracking-widest mb-3 px-3 py-1 rounded-full ${
+          className={`inline-block text-xs font-bold uppercase tracking-wider mb-3 px-2.5 py-1 rounded ${
             light
               ? 'bg-white/10 text-evalua-yellow'
-              : 'bg-evalua-sky text-evalua-blue'
+              : 'bg-[#F0F5FA] text-[#004481]'
           }`}
         >
           {eyebrow}
         </span>
       )}
       <h2
-        className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight ${
-          light ? 'text-white' : 'text-evalua-navy'
+        className={`text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight ${
+          light ? 'text-white' : 'text-[#121212]'
         }`}
       >
         {title}
@@ -40,7 +40,7 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
       {subtitle && (
         <p
           className={`mt-4 text-base sm:text-lg leading-relaxed ${
-            light ? 'text-slate-200' : 'text-slate-600'
+            light ? 'text-slate-200' : 'text-[#5B6573]'
           }`}
         >
           {subtitle}

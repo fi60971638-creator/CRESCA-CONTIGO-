@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-evalua-electric: #1D63ED;
-  --color-evalua-navy: #0B2545;
-  --color-evalua-blue: #1D63ED;
-  --color-evalua-green: #16A34A;
-  --color-evalua-amber: #F59E0B;
-  --color-evalua-purple: #8B5CF6;
-  --color-evalua-cyan: #0EA5E9;
+  --color-evalua-electric: #004481;
+  --color-evalua-navy: #072146;
+  --color-evalua-blue: #004481;
+  --color-evalua-link: #1464A5;
+  --color-evalua-green: #028448;
+  --color-evalua-amber: #B45309;
+  --color-evalua-purple: #4B5563;
+  --color-evalua-cyan: #1464A5;
   --color-evalua-yellow: #FFD800;
-  --color-evalua-sky: #EFF6FF;
+  --color-evalua-sky: #F0F5FA;
+  --color-evalua-surface: #F7F8FA;
+  --color-evalua-border: #E2E6EC;
   --color-evalua-lightgreen: #8BD04F;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
@@ -18,8 +21,8 @@
 @layer base {
   body {
     font-family: var(--font-sans);
-    color: #0F172A;
-    background-color: #F6F9FC;
+    color: #121212;
+    background-color: #FFFFFF;
   }
 }
 
@@ -51,6 +54,12 @@
 
 .animate-spin-slow {
   animation: spin-slow 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow {
+    animation: none;
+  }
 }
 
 /* Custom scrollbars */

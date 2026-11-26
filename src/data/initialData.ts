@@ -21,8 +21,8 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'usr-admin-hco',
     name: 'Asesor Principal - Huánuco',
-    email: 'admin@evalua.pe',
-    password: 'Evaluacion2026!Hco',
+    email: 'zonyukimordonezcaqui@gmail.com',
+    password: '12346',
     role: 'admin',
     roleTitle: 'Asesor de Negocios & Administrador',
     agency: 'Agencia Principal - Huánuco',
@@ -229,7 +229,7 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
       personContacted: 'Juan Pérez López (Titular) y cónyuge',
       informationVerified: 'Se verificó local comercial propio en primer piso de vivienda familiar de 2 pisos material noble. Anaqueles abastecidos, 2 vitrinas refrigeradas y cuaderno de ventas al día.',
       observations: 'Negocio con buena afluencia peatonal, frente a parque vecinal.',
-      verifiedBy: 'Carlos Méndez Salazar'
+      verifiedBy: 'Asesor Principal - Huánuco'
     },
 
     documents: STANDARD_DOCUMENTS_TEMPLATE,
@@ -246,9 +246,9 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
     },
 
     timeline: [
-      { id: 'tl-1', date: '2024-09-05', time: '10:30', status: 'registrada', responsibleName: 'Carlos Méndez Salazar', responsibleRole: 'Analista de Crédito', observation: 'Registro inicial de la solicitud y ficha socioeconómica.', nextAction: 'Programar visita de campo' },
-      { id: 'tl-2', date: '2024-09-06', time: '15:00', status: 'en_verificacion', responsibleName: 'Carlos Méndez Salazar', responsibleRole: 'Analista de Crédito', observation: 'Visita de verificación al negocio y toma de fotografías del inventario.', nextAction: 'Cotejo de boletas' },
-      { id: 'tl-3', date: '2024-09-08', time: '11:15', status: 'en_evaluacion', responsibleName: 'Carlos Méndez Salazar', responsibleRole: 'Analista de Crédito', observation: 'Elaboración de Estado de Resultados, Balance General y Flujo de Caja.', nextAction: 'Elevar a Comité de Créditos' }
+      { id: 'tl-1', date: '2024-09-05', time: '10:30', status: 'registrada', responsibleName: 'Asesor Principal - Huánuco', responsibleRole: 'Asesor de Negocios & Administrador', observation: 'Registro inicial de la solicitud y ficha socioeconómica.', nextAction: 'Programar visita de campo' },
+      { id: 'tl-2', date: '2024-09-06', time: '15:00', status: 'en_verificacion', responsibleName: 'Asesor Principal - Huánuco', responsibleRole: 'Asesor de Negocios & Administrador', observation: 'Visita de verificación al negocio y toma de fotografías del inventario.', nextAction: 'Cotejo de boletas' },
+      { id: 'tl-3', date: '2024-09-08', time: '11:15', status: 'en_evaluacion', responsibleName: 'Asesor Principal - Huánuco', responsibleRole: 'Asesor de Negocios & Administrador', observation: 'Elaboración de Estado de Resultados, Balance General y Flujo de Caja.', nextAction: 'Elevar a Comité de Créditos' }
     ]
   },
 
@@ -259,10 +259,10 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
     status: 'documentacion_pendiente',
     createdAt: '2024-09-04',
     updatedAt: '2024-09-08',
-    assignedAnalystId: 'usr-2',
-    assignedAnalystName: 'Elena Ramos Quispe',
-    assignedAnalystRole: 'Asesora de Créditos Microempresa',
-    agency: 'Agencia Huancayo',
+    assignedAnalystId: 'usr-analista-hco',
+    assignedAnalystName: 'Analista de Riesgos Huánuco',
+    assignedAnalystRole: 'Analista de Crédito y Riesgos',
+    agency: 'Agencia Amarilis - Huánuco',
 
     personal: {
       firstNames: 'Rosa María',
@@ -356,7 +356,7 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
       personContacted: 'Rosa Morales Quispe',
       informationVerified: 'Puesto comercial activo con mercadería fresca y flujo de compradores mayoristas.',
       observations: 'Falta entregar copia de las 4 últimas semanas del cuaderno de ventas.',
-      verifiedBy: 'Elena Ramos Quispe'
+      verifiedBy: 'Analista de Riesgos Huánuco'
     },
 
     documents: [
@@ -378,8 +378,8 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
     },
 
     timeline: [
-      { id: 'tl-r1', date: '2024-09-04', time: '09:00', status: 'registrada', responsibleName: 'Elena Ramos Quispe', responsibleRole: 'Asesora de Créditos', observation: 'Registro inicial de solicitud crediticia.', nextAction: 'Visita a mercado' },
-      { id: 'tl-r2', date: '2024-09-05', time: '11:30', status: 'documentacion_pendiente', responsibleName: 'Elena Ramos Quispe', responsibleRole: 'Asesora de Créditos', observation: 'Se observó falta de cuaderno de ventas.', nextAction: 'Recojo de cuaderno' }
+      { id: 'tl-r1', date: '2024-09-04', time: '09:00', status: 'registrada', responsibleName: 'Analista de Riesgos Huánuco', responsibleRole: 'Analista de Crédito y Riesgos', observation: 'Registro inicial de solicitud crediticia.', nextAction: 'Visita a mercado' },
+      { id: 'tl-r2', date: '2024-09-05', time: '11:30', status: 'documentacion_pendiente', responsibleName: 'Analista de Riesgos Huánuco', responsibleRole: 'Analista de Crédito y Riesgos', observation: 'Se observó falta de cuaderno de ventas.', nextAction: 'Recojo de cuaderno' }
     ]
   },
 
@@ -390,10 +390,10 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
     status: 'finalizada',
     createdAt: '2024-08-20',
     updatedAt: '2024-09-01',
-    assignedAnalystId: 'usr-4',
-    assignedAnalystName: 'Jorge Luis Morales',
-    assignedAnalystRole: 'Gestor de Crédito',
-    agency: 'Agencia Arequipa',
+    assignedAnalystId: 'usr-analista-hco',
+    assignedAnalystName: 'Analista de Riesgos Huánuco',
+    assignedAnalystRole: 'Analista de Crédito y Riesgos',
+    agency: 'Agencia Amarilis - Huánuco',
 
     personal: {
       firstNames: 'Marco Aurelio',
@@ -490,7 +490,7 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
       personContacted: 'Marco Quispe Mamani',
       informationVerified: 'Taller operativo con 5 máquinas de coser y 4 operarios en jornada continua.',
       observations: 'Proforma del importador de bordadora verificada.',
-      verifiedBy: 'Jorge Luis Morales'
+      verifiedBy: 'Analista de Riesgos Huánuco'
     },
 
     documents: STANDARD_DOCUMENTS_TEMPLATE,
@@ -507,10 +507,10 @@ export const INITIAL_DOSSIERS: CreditEvaluationDossier[] = [
     },
 
     timeline: [
-      { id: 'tl-t1', date: '2024-08-20', time: '14:00', status: 'registrada', responsibleName: 'Jorge Luis Morales', responsibleRole: 'Gestor de Crédito', observation: 'Registro de solicitud.', nextAction: 'Visita técnica' },
-      { id: 'tl-t2', date: '2024-08-22', time: '16:30', status: 'en_verificacion', responsibleName: 'Jorge Luis Morales', responsibleRole: 'Gestor de Crédito', observation: 'Inspección al taller textil.', nextAction: 'Evaluación de flujo' },
-      { id: 'tl-t3', date: '2024-08-28', time: '10:00', status: 'en_evaluacion', responsibleName: 'Jorge Luis Morales', responsibleRole: 'Gestor de Crédito', observation: 'Cierre de balance y capacidad de pago.', nextAction: 'Comité' },
-      { id: 'tl-t4', date: '2024-09-01', time: '17:00', status: 'finalizada', responsibleName: 'Jorge Luis Morales', responsibleRole: 'Gestor de Crédito', observation: 'Sesión de comité realizada y dictamen institucional registrado.', nextAction: 'Archivado formal' }
+      { id: 'tl-t1', date: '2024-08-20', time: '14:00', status: 'registrada', responsibleName: 'Analista de Riesgos Huánuco', responsibleRole: 'Analista de Crédito y Riesgos', observation: 'Registro de solicitud.', nextAction: 'Visita técnica' },
+      { id: 'tl-t2', date: '2024-08-22', time: '16:30', status: 'en_verificacion', responsibleName: 'Analista de Riesgos Huánuco', responsibleRole: 'Analista de Crédito y Riesgos', observation: 'Inspección al taller textil.', nextAction: 'Evaluación de flujo' },
+      { id: 'tl-t3', date: '2024-08-28', time: '10:00', status: 'en_evaluacion', responsibleName: 'Analista de Riesgos Huánuco', responsibleRole: 'Analista de Crédito y Riesgos', observation: 'Cierre de balance y capacidad de pago.', nextAction: 'Comité' },
+      { id: 'tl-t4', date: '2024-09-01', time: '17:00', status: 'finalizada', responsibleName: 'Analista de Riesgos Huánuco', responsibleRole: 'Analista de Crédito y Riesgos', observation: 'Sesión de comité realizada y dictamen institucional registrado.', nextAction: 'Archivado formal' }
     ]
   }
 ];
@@ -519,8 +519,8 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-1',
     timestamp: '2024-09-10 14:22:10',
-    userId: 'usr-1',
-    userName: 'Carlos Méndez Salazar',
+    userId: 'usr-admin-hco',
+    userName: 'Asesor Principal - Huánuco',
     action: 'REGISTRO_SOLICITUD',
     details: 'Registró el expediente EXP-2024-0842 para Juan Pérez López por S/ 10,000.',
     targetCode: 'EXP-2024-0842'
@@ -528,8 +528,8 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-2',
     timestamp: '2024-09-08 17:40:15',
-    userId: 'usr-1',
-    userName: 'Carlos Méndez Salazar',
+    userId: 'usr-admin-hco',
+    userName: 'Asesor Principal - Huánuco',
     action: 'ACTUALIZACION_ESTADO',
     details: 'Actualizó estado a [En Evaluación Técnica] para EXP-2024-0842.',
     targetCode: 'EXP-2024-0842'
@@ -537,8 +537,8 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-3',
     timestamp: '2024-09-05 11:30:00',
-    userId: 'usr-2',
-    userName: 'Elena Ramos Quispe',
+    userId: 'usr-analista-hco',
+    userName: 'Analista de Riesgos Huánuco',
     action: 'DOCUMENTACION_OBSERVADA',
     details: 'Registró requerimiento pendiente de cuaderno de ventas para EXP-2024-0843.',
     targetCode: 'EXP-2024-0843'
@@ -546,8 +546,8 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-4',
     timestamp: '2024-09-01 17:05:00',
-    userId: 'usr-4',
-    userName: 'Jorge Luis Morales',
+    userId: 'usr-analista-hco',
+    userName: 'Analista de Riesgos Huánuco',
     action: 'DICTAMEN_COMITE',
     details: 'Registró dictamen de comité para EXP-2024-0844 (Acta ACTA-COM-2024-092).',
     targetCode: 'EXP-2024-0844'

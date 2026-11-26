@@ -12,7 +12,11 @@ import {
   AccountPayableItem,
   PersonalReference,
   VisitVerificationData,
-  QualitativeAnalysisData
+  QualitativeAnalysisData,
+  InventoryMetadata,
+  InventoryValuationSnapshot,
+  BalanceSheetDetail,
+  BalanceSheetSnapshot
 } from '../types/evalua';
 import {
   FinancialRecordFile,
@@ -26,6 +30,18 @@ import {
   INITIAL_AUDIT_LOGS
 } from '../data/initialData';
 import { INITIAL_FINANCIAL_RECORDS } from '../data/initialFinancialRecords';
+import {
+  calculateInventoryTotalValue,
+  hydrateBalanceSheetDetail,
+  flattenDetailToBalanceSheetData,
+  hydrateBalanceObligations,
+  calculateTotalObligations,
+  calculateIncomeStatement,
+  calculateCashFlow,
+  calculatePaymentCapacity,
+  calculateFinancialRatios,
+  computeHierarchicalBalanceSummary
+} from '../utils/financialCalculations';
 
 interface EvaluaContextType {
   // Auth & Roles
@@ -39,6 +55,9 @@ interface EvaluaContextType {
   // Navigation & UI
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  activeNavKey: string;
+  activeSubSection: string | null;
+  navigateTo: (tab: string, navKey?: string, subSection?: string | null) => void;
   selectedDossierId: string | null;
   setSelectedDossierId: (id: string | null) => void;
   modalInitialTab: string;
@@ -64,7 +83,19 @@ interface EvaluaContextType {
   updateDossierDocuments: (dossierId: string, documents: DocumentControlItem[]) => void;
   toggleDocStatus: (dossierId: string, docId: string, newStatus: DocumentControlItem['status']) => void;
   updateDossierObligations: (dossierId: string, obligations: FinancialObligation[]) => void;
-  updateDossierInventory: (dossierId: string, inventory: InventoryItem[]) => void;
+  updateDossierInventory: (dossierId: string, inventory: InventoryItem[], inventoryMeta?: InventoryMetadata) => void;
+  saveInventoryValuation: (
+    dossierId: string,
+    inventory: InventoryItem[],
+    inventoryMeta: InventoryMetadata,
+    saveToHistory?: boolean
+  ) => void;
+  saveHierarchicalBalance: (
+    dossierId: string,
+    detail: BalanceSheetDetail,
+    obligations: FinancialObligation[],
+    saveSnapshot?: boolean
+  ) => void;
   updateDossierReceivables: (dossierId: string, receivables: AccountReceivableItem[]) => void;
   updateDossierPayables: (dossierId: string, payables: AccountPayableItem[]) => void;
   updateDossierReferences: (dossierId: string, references: PersonalReference[]) => void;
@@ -111,14 +142,64 @@ const STORAGE_KEYS = {
   FINANCIAL_RECORDS: 'evalua_v2_financial_records'
 };
 
+const LEGACY_USER_EMAILS = new Set([
+  'carlos.mendez@evalua.pe',
+  'elena.ramos@evalua.pe',
+  'patricia.valdivia@evalua.pe',
+  'jorge.morales@evalua.pe'
+]);
+
+const LEGACY_USER_IDS = new Set([
+  'usr-1',
+  'usr-2',
+  'usr-3',
+  'usr-4',
+  'usr-zonyu'
+]);
+
+const LEGACY_USER_NAMES = new Set([
+  'Carlos Méndez Salazar',
+  'Elena Ramos Quispe',
+  'Dra. Patricia Valdivia',
+  'Jorge Luis Morales',
+  'Zonyu Kim'
+]);
+
+const isLegacyUser = (u?: Partial<User> | null): boolean => {
+  if (!u) return false;
+  if (u.id && LEGACY_USER_IDS.has(u.id)) return true;
+  if (u.email && LEGACY_USER_EMAILS.has(u.email.toLowerCase())) return true;
+  if (u.name && LEGACY_USER_NAMES.has(u.name)) return true;
+  return false;
+};
+
 const EvaluaContext = createContext<EvaluaContextType | undefined>(undefined);
 
 export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(() => {
+    const primaryAdmin = INITIAL_USERS[0];
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((u: User) => !isLegacyUser(u));
+          const updated = filtered.map((u: User) =>
+            u.id === primaryAdmin.id || u.email.toLowerCase() === 'admin@evalua.pe'
+              ? { ...u, email: primaryAdmin.email, password: primaryAdmin.password }
+              : u
+          );
+          if (updated.length === 0) {
+            return INITIAL_USERS;
+          }
+          const hasPrimary = updated.some(
+            (u: User) => u.id === primaryAdmin.id || u.email.toLowerCase() === primaryAdmin.email.toLowerCase()
+          );
+          if (!hasPrimary) {
+            return [primaryAdmin, ...updated];
+          }
+          return updated;
+        }
       }
       return INITIAL_USERS;
     } catch {
@@ -129,13 +210,31 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-      return saved ? JSON.parse(saved) : null;
+      if (!saved) return null;
+      const parsed = JSON.parse(saved);
+      if (isLegacyUser(parsed)) return null;
+      return parsed;
     } catch {
       return null;
     }
   });
 
-  const [activeTab, setActiveTab] = useState<string>('panel_principal');
+  const [activeTab, setActiveTabState] = useState<string>('panel_principal');
+  const [activeNavKey, setActiveNavKey] = useState<string>('panel_principal');
+  const [activeSubSection, setActiveSubSection] = useState<string | null>(null);
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    setActiveNavKey(tab);
+    setActiveSubSection(null);
+  };
+
+  const navigateTo = (tab: string, navKey?: string, subSection?: string | null) => {
+    setActiveTabState(tab);
+    setActiveNavKey(navKey || tab);
+    setActiveSubSection(subSection ?? null);
+  };
+
   const [selectedDossierId, setSelectedDossierId] = useState<string | null>(null);
   const [modalInitialTab, setModalInitialTab] = useState<string>('solicitante');
   const [isNewDossierModalOpen, setIsNewDossierModalOpen] = useState(false);
@@ -150,7 +249,59 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [dossiers, setDossiers] = useState<CreditEvaluationDossier[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DOSSIERS);
-      return saved ? JSON.parse(saved) : INITIAL_DOSSIERS;
+      if (!saved) return INITIAL_DOSSIERS;
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return INITIAL_DOSSIERS;
+      return parsed.map((d: CreditEvaluationDossier) => {
+        const useAdminFallback = d.assignedAnalystId === 'usr-1' || d.assignedAnalystName === 'Carlos Méndez Salazar';
+        const hasLegacyAnalyst =
+          LEGACY_USER_IDS.has(d.assignedAnalystId) || LEGACY_USER_NAMES.has(d.assignedAnalystName);
+        return {
+          ...d,
+          assignedAnalystId: hasLegacyAnalyst
+            ? useAdminFallback
+              ? 'usr-admin-hco'
+              : 'usr-analista-hco'
+            : d.assignedAnalystId,
+          assignedAnalystName: hasLegacyAnalyst
+            ? useAdminFallback
+              ? 'Asesor Principal - Huánuco'
+              : 'Analista de Riesgos Huánuco'
+            : d.assignedAnalystName,
+          assignedAnalystRole: hasLegacyAnalyst
+            ? useAdminFallback
+              ? 'Asesor de Negocios & Administrador'
+              : 'Analista de Crédito y Riesgos'
+            : d.assignedAnalystRole,
+          visitVerification:
+            d.visitVerification && LEGACY_USER_NAMES.has(d.visitVerification.verifiedBy)
+              ? {
+                  ...d.visitVerification,
+                  verifiedBy:
+                    d.visitVerification.verifiedBy === 'Carlos Méndez Salazar'
+                      ? 'Asesor Principal - Huánuco'
+                      : 'Analista de Riesgos Huánuco'
+                }
+              : d.visitVerification,
+          timeline: Array.isArray(d.timeline)
+            ? d.timeline.map(ev =>
+                LEGACY_USER_NAMES.has(ev.responsibleName)
+                  ? {
+                      ...ev,
+                      responsibleName:
+                        ev.responsibleName === 'Carlos Méndez Salazar'
+                          ? 'Asesor Principal - Huánuco'
+                          : 'Analista de Riesgos Huánuco',
+                      responsibleRole:
+                        ev.responsibleName === 'Carlos Méndez Salazar'
+                          ? 'Asesor de Negocios & Administrador'
+                          : 'Analista de Crédito y Riesgos'
+                    }
+                  : ev
+              )
+            : d.timeline
+        };
+      });
     } catch {
       return INITIAL_DOSSIERS;
     }
@@ -159,7 +310,20 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.AUDIT);
-      return saved ? JSON.parse(saved) : INITIAL_AUDIT_LOGS;
+      if (!saved) return INITIAL_AUDIT_LOGS;
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return INITIAL_AUDIT_LOGS;
+      return parsed.map((log: AuditLog) => {
+        if (!LEGACY_USER_IDS.has(log.userId) && !LEGACY_USER_NAMES.has(log.userName)) {
+          return log;
+        }
+        const isPrimary = log.userId === 'usr-1' || log.userName === 'Carlos Méndez Salazar' || log.userName === 'Zonyu Kim';
+        return {
+          ...log,
+          userId: isPrimary ? 'usr-admin-hco' : 'usr-analista-hco',
+          userName: isPrimary ? 'Asesor Principal - Huánuco' : 'Analista de Riesgos Huánuco'
+        };
+      });
     } catch {
       return INITIAL_AUDIT_LOGS;
     }
@@ -168,7 +332,31 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [financialRecords, setFinancialRecords] = useState<FinancialRecordFile[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.FINANCIAL_RECORDS);
-      return saved ? JSON.parse(saved) : INITIAL_FINANCIAL_RECORDS;
+      if (!saved) return INITIAL_FINANCIAL_RECORDS;
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return INITIAL_FINANCIAL_RECORDS;
+      return parsed.map((r: FinancialRecordFile) => {
+        const hasLegacy = LEGACY_USER_IDS.has(r.advisorId) || LEGACY_USER_NAMES.has(r.advisorName);
+        const isPrimary = r.advisorId === 'usr-1' || r.advisorId === 'usr-zonyu' || r.advisorName === 'Carlos Méndez Salazar' || r.advisorName === 'Zonyu Kim';
+        return {
+          ...r,
+          advisorId: hasLegacy ? (isPrimary ? 'usr-admin-hco' : 'usr-analista-hco') : r.advisorId,
+          advisorName: hasLegacy ? (isPrimary ? 'Asesor Principal - Huánuco' : 'Analista de Riesgos Huánuco') : r.advisorName,
+          auditTrail: Array.isArray(r.auditTrail)
+            ? r.auditTrail.map(a =>
+                LEGACY_USER_NAMES.has(a.advisorName)
+                  ? {
+                      ...a,
+                      advisorName:
+                        a.advisorName === 'Elena Ramos Quispe'
+                          ? 'Analista de Riesgos Huánuco'
+                          : 'Asesor Principal - Huánuco'
+                    }
+                  : a
+              )
+            : r.auditTrail
+        };
+      });
     } catch {
       return INITIAL_FINANCIAL_RECORDS;
     }
@@ -407,8 +595,258 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setDossiers(prev => prev.map(d => (d.id === dossierId ? { ...d, obligations, updatedAt: new Date().toISOString().split('T')[0] } : d)));
   };
 
-  const updateDossierInventory = (dossierId: string, inventory: InventoryItem[]) => {
-    setDossiers(prev => prev.map(d => (d.id === dossierId ? { ...d, inventory, updatedAt: new Date().toISOString().split('T')[0] } : d)));
+  const updateDossierInventory = (
+    dossierId: string,
+    inventory: InventoryItem[],
+    inventoryMeta?: InventoryMetadata
+  ) => {
+    const today = new Date().toISOString().split('T')[0];
+    setDossiers(prev =>
+      prev.map(d => {
+        if (d.id !== dossierId) return d;
+        const normalizedInventory = inventory.map(item => {
+          const qty = Math.max(0, Number(item.quantity) || 0);
+          const cost = Math.max(0, Number(item.unitCost) || 0);
+          return {
+            ...item,
+            quantity: qty,
+            unitCost: cost,
+            totalCostValue: Number((qty * cost).toFixed(2))
+          };
+        });
+        const newInventoryTotal = calculateInventoryTotalValue(normalizedInventory);
+        const nextMeta = inventoryMeta || d.inventoryMeta;
+        const baseDetail = hydrateBalanceSheetDetail({
+          ...d,
+          inventory: normalizedInventory,
+          inventoryMeta: nextMeta
+        });
+        const syncedCurrentAssets = baseDetail.currentAssets.map(ca =>
+          ca.isInventoryLinked || ca.category === 'Inventarios'
+            ? {
+                ...ca,
+                amount: newInventoryTotal,
+                recordedDate: nextMeta?.inventoryDate || today,
+                verificationStatus: nextMeta?.verificationStatus || ca.verificationStatus
+              }
+            : ca
+        );
+        const nextDetail: BalanceSheetDetail = {
+          ...baseDetail,
+          currentAssets: syncedCurrentAssets
+        };
+        const syncedObligations = hydrateBalanceObligations(d);
+        const syncedFlatBalance = flattenDetailToBalanceSheetData(
+          nextDetail.currentAssets,
+          nextDetail.nonCurrentAssets,
+          syncedObligations
+        );
+        const ratios = calculateFinancialRatios(
+          syncedFlatBalance.totalAssets,
+          syncedFlatBalance.totalLiabilities,
+          d.income.totalMonthlyIncome,
+          d.paymentCapacity.currentFinancialObligations,
+          d.paymentCapacity.availableFlow
+        );
+        return {
+          ...d,
+          inventory: normalizedInventory,
+          inventoryMeta: nextMeta,
+          balanceSheetDetail: nextDetail,
+          balanceSheet: syncedFlatBalance,
+          ratios,
+          updatedAt: today
+        };
+      })
+    );
+  };
+
+  const saveInventoryValuation = (
+    dossierId: string,
+    inventory: InventoryItem[],
+    inventoryMeta: InventoryMetadata,
+    saveToHistory = false
+  ) => {
+    const today = new Date().toISOString().split('T')[0];
+    const nowTime = new Date().toLocaleString('sv-SE').replace('T', ' ');
+    const target = dossiers.find(d => d.id === dossierId);
+
+    updateDossierInventory(dossierId, inventory, inventoryMeta);
+
+    const totalValue = calculateInventoryTotalValue(inventory);
+    const totalUnits = inventory.reduce((s, i) => s + Math.max(0, Number(i.quantity) || 0), 0);
+
+    if (saveToHistory) {
+      const snapshot: InventoryValuationSnapshot = {
+        id: `inv-snap-${Date.now()}`,
+        inventoryDate: inventoryMeta.inventoryDate || today,
+        savedAt: nowTime,
+        savedBy: currentUser?.name || 'Analista',
+        responsibleName: inventoryMeta.responsibleName,
+        location: inventoryMeta.location,
+        verificationStatus: inventoryMeta.verificationStatus,
+        declaredTotalValue: inventoryMeta.declaredTotalValue,
+        totalItems: inventory.length,
+        totalUnits,
+        totalValue,
+        items: inventory,
+        generalObservations: inventoryMeta.generalObservations
+      };
+
+      setDossiers(prev =>
+        prev.map(d =>
+          d.id === dossierId
+            ? {
+                ...d,
+                inventorySnapshots: [snapshot, ...(d.inventorySnapshots || [])],
+                updatedAt: today
+              }
+            : d
+        )
+      );
+      logAuditEvent(
+        'VALORIZACION_INVENTARIO',
+        `Guardó valoración histórica de inventario (${inventory.length} ítems · S/ ${totalValue.toLocaleString('es-PE', { minimumFractionDigits: 2 })})`,
+        target?.code
+      );
+    } else {
+      logAuditEvent(
+        'ACTUALIZACION_INVENTARIO',
+        `Actualizó inventario valorizado en S/ ${totalValue.toLocaleString('es-PE', { minimumFractionDigits: 2 })} (sincronizado con Balance General)`,
+        target?.code
+      );
+    }
+  };
+
+  const saveHierarchicalBalance = (
+    dossierId: string,
+    detail: BalanceSheetDetail,
+    obligations: FinancialObligation[],
+    saveSnapshot = false
+  ) => {
+    const today = new Date().toISOString().split('T')[0];
+    const nowTime = new Date().toLocaleString('sv-SE').replace('T', ' ');
+    const target = dossiers.find(d => d.id === dossierId);
+
+    setDossiers(prev =>
+      prev.map(d => {
+        if (d.id !== dossierId) return d;
+        const inventoryTotal = calculateInventoryTotalValue(d.inventory);
+        const syncedCurrentAssets = detail.currentAssets.map(ca =>
+          ca.isInventoryLinked || ca.category === 'Inventarios'
+            ? { ...ca, amount: inventoryTotal }
+            : ca
+        );
+        const nextDetail: BalanceSheetDetail = {
+          ...detail,
+          lastSavedAt: nowTime,
+          currentAssets: syncedCurrentAssets
+        };
+
+        const flatBalance = flattenDetailToBalanceSheetData(
+          nextDetail.currentAssets,
+          nextDetail.nonCurrentAssets,
+          obligations
+        );
+        const totalMonthlyInstallments = calculateTotalObligations(obligations);
+        const totalOperatingAndFamily =
+          d.costOfSales.totalCostOfSales +
+          d.businessExpenses.totalBusinessExpenses +
+          d.familyExpenses.totalFamilyExpenses;
+
+        const incomeStatement = calculateIncomeStatement(
+          d.income.monthlySales,
+          d.costOfSales.totalCostOfSales,
+          d.businessExpenses.totalBusinessExpenses,
+          d.income.otherBusinessIncome + d.income.totalPersonalIncome,
+          0,
+          d.familyExpenses.totalFamilyExpenses,
+          totalMonthlyInstallments
+        );
+
+        const cashFlow = calculateCashFlow(
+          d.income.monthlySales,
+          d.income.salaryIncome,
+          d.income.otherBusinessIncome + d.income.feesIncome + d.income.rentalIncome + d.income.otherPersonalIncome,
+          0,
+          d.costOfSales.totalCostOfSales,
+          d.businessExpenses.totalBusinessExpenses,
+          d.familyExpenses.totalFamilyExpenses,
+          totalMonthlyInstallments,
+          0
+        );
+
+        const paymentCapacity = calculatePaymentCapacity(
+          d.income.totalMonthlyIncome,
+          totalOperatingAndFamily,
+          totalMonthlyInstallments,
+          d.terms.proposedInstallment
+        );
+
+        const ratios = calculateFinancialRatios(
+          flatBalance.totalAssets,
+          flatBalance.totalLiabilities,
+          d.income.totalMonthlyIncome,
+          totalMonthlyInstallments,
+          paymentCapacity.availableFlow
+        );
+
+        const summary = computeHierarchicalBalanceSummary(
+          nextDetail.currentAssets,
+          nextDetail.nonCurrentAssets,
+          obligations,
+          nextDetail.equityBreakdown
+        );
+
+        let nextSnapshots = d.balanceSnapshots || [];
+        if (saveSnapshot) {
+          const snapshot: BalanceSheetSnapshot = {
+            id: `bs-snap-${Date.now()}`,
+            balanceDate: nextDetail.balanceDate || today,
+            evaluationPeriod: nextDetail.evaluationPeriod || today.slice(0, 7),
+            currency: 'S/',
+            savedAt: nowTime,
+            savedBy: currentUser?.name || 'Analista',
+            isDraft: Boolean(nextDetail.isDraft),
+            inventoryValueAtSnapshot: inventoryTotal,
+            totalCurrentAssets: summary.totalCurrentAssets,
+            totalNonCurrentAssets: summary.totalNonCurrentAssets,
+            totalAssets: summary.totalAssets,
+            totalCurrentLiabilities: summary.totalCurrentLiabilities,
+            totalNonCurrentLiabilities: summary.totalNonCurrentLiabilities,
+            totalLiabilities: summary.totalLiabilities,
+            totalDeclaredEquity: summary.declaredEquity,
+            computedEquity: summary.computedEquity,
+            difference: summary.difference,
+            currentAssets: nextDetail.currentAssets,
+            nonCurrentAssets: nextDetail.nonCurrentAssets,
+            obligations,
+            equityBreakdown: nextDetail.equityBreakdown,
+            observations: nextDetail.observations
+          };
+          nextSnapshots = [snapshot, ...nextSnapshots];
+        }
+
+        return {
+          ...d,
+          balanceSheetDetail: nextDetail,
+          balanceSnapshots: nextSnapshots,
+          balanceSheet: flatBalance,
+          obligations,
+          incomeStatement,
+          cashFlow,
+          paymentCapacity,
+          ratios,
+          updatedAt: today
+        };
+      })
+    );
+
+    logAuditEvent(
+      saveSnapshot ? 'CIERRE_PERIODO_BALANCE' : 'ACTUALIZACION_BALANCE',
+      `${saveSnapshot ? 'Guardó período de Balance General' : 'Actualizó Balance General'} (${detail.evaluationPeriod || today.slice(0, 7)})`,
+      target?.code
+    );
   };
 
   const updateDossierReceivables = (dossierId: string, accountsReceivable: AccountReceivableItem[]) => {
@@ -709,6 +1147,9 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       switchUserRole,
       activeTab,
       setActiveTab,
+      activeNavKey,
+      activeSubSection,
+      navigateTo,
       selectedDossierId,
       setSelectedDossierId,
       modalInitialTab,
@@ -729,6 +1170,8 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       toggleDocStatus,
       updateDossierObligations,
       updateDossierInventory,
+      saveInventoryValuation,
+      saveHierarchicalBalance,
       updateDossierReceivables,
       updateDossierPayables,
       updateDossierReferences,
@@ -764,6 +1207,8 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       currentUser,
       users,
       activeTab,
+      activeNavKey,
+      activeSubSection,
       selectedDossierId,
       modalInitialTab,
       isNewDossierModalOpen,

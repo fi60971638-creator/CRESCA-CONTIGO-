@@ -468,9 +468,9 @@ export const FinancialAnalysisModule: React.FC = () => {
           onCreate={(recordData) => {
             const created = createFinancialRecord({
               ...recordData,
-              advisorId: currentUser?.id || 'usr-zonyu',
+              advisorId: currentUser?.id || 'usr-admin-hco',
               advisorName: currentUser?.name || 'Asesor Financiero',
-              agency: currentUser?.agency || 'Sede Principal - Lima',
+              agency: currentUser?.agency || 'Agencia Principal - Huánuco',
               status: 'en_proceso'
             });
             setIsNewRecordModalOpen(false);

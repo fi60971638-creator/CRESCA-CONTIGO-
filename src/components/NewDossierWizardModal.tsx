@@ -493,10 +493,10 @@ export const NewDossierWizardModal: React.FC<NewDossierWizardModalProps> = ({
 
     const created = createDossier({
       status: 'registrada',
-      assignedAnalystId: currentUser?.id || 'usr-1',
+      assignedAnalystId: currentUser?.id || 'usr-admin-hco',
       assignedAnalystName: currentUser?.name || 'Asesor Financiero',
       assignedAnalystRole: currentUser?.roleTitle || 'Analista de Crédito',
-      agency: currentUser?.agency || 'Agencia Principal - Lima Centro',
+      agency: currentUser?.agency || 'Agencia Principal - Huánuco',
 
       personal: {
         firstNames,

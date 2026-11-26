@@ -6,9 +6,9 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
     code: 'EXP-FIN-2025-001',
     createdAt: '2025-02-10T09:30:00Z',
     updatedAt: '2025-02-18T16:45:00Z',
-    advisorId: 'usr-zonyu',
-    advisorName: 'Zonyu Kim',
-    agency: 'Sede Central & Agencia Principal - Lima',
+    advisorId: 'usr-admin-hco',
+    advisorName: 'Asesor Principal - Huánuco',
+    agency: 'Agencia Principal - Huánuco',
     status: 'completo',
     general: {
       clientType: 'negocio',
@@ -279,7 +279,7 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
       {
         id: 'aud-1',
         timestamp: '2025-02-10 10:15:00',
-        advisorName: 'Zonyu Kim',
+        advisorName: 'Asesor Principal - Huánuco',
         action: 'Creación de expediente',
         changedTab: 'Datos generales',
         details: 'Apertura de expediente financiero para Rosa María Condori Quispe.'
@@ -287,7 +287,7 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
       {
         id: 'aud-2',
         timestamp: '2025-02-14 15:30:20',
-        advisorName: 'Zonyu Kim',
+        advisorName: 'Asesor Principal - Huánuco',
         action: 'Actualización y verificación',
         changedTab: 'Documentos de sustento',
         details: 'Carga y verificación de reporte SBS y comprobantes de compras Alicorp.'
@@ -300,9 +300,9 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
     code: 'EXP-FIN-2025-002',
     createdAt: '2025-02-14T11:00:00Z',
     updatedAt: '2025-02-19T14:10:00Z',
-    advisorId: 'usr-1',
-    advisorName: 'Carlos Méndez Salazar',
-    agency: 'Agencia Principal - Lima Centro',
+    advisorId: 'usr-admin-hco',
+    advisorName: 'Asesor Principal - Huánuco',
+    agency: 'Agencia Principal - Huánuco',
     status: 'en_proceso',
     general: {
       clientType: 'natural',
@@ -551,7 +551,7 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
       {
         id: 'aud-t1',
         timestamp: '2025-02-14 11:10:00',
-        advisorName: 'Carlos Méndez Salazar',
+        advisorName: 'Asesor Principal - Huánuco',
         action: 'Apertura de expediente Persona Natural',
         changedTab: 'Datos generales',
         details: 'Registro de datos generales y perfil laboral dependiente.'
@@ -564,9 +564,9 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
     code: 'EXP-FIN-2025-003',
     createdAt: '2025-02-05T08:00:00Z',
     updatedAt: '2025-02-17T17:00:00Z',
-    advisorId: 'usr-2',
-    advisorName: 'Elena Ramos Quispe',
-    agency: 'Agencia Huancayo',
+    advisorId: 'usr-analista-hco',
+    advisorName: 'Analista de Riesgos Huánuco',
+    agency: 'Agencia Amarilis - Huánuco',
     status: 'auditado',
     general: {
       clientType: 'empresa',
@@ -804,7 +804,7 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
       {
         id: 'aud-e1',
         timestamp: '2025-02-05 08:30:00',
-        advisorName: 'Elena Ramos Quispe',
+        advisorName: 'Analista de Riesgos Huánuco',
         action: 'Apertura de expediente Empresa Industrial',
         changedTab: 'Datos generales',
         details: 'Expediente aperturado para evaluación de línea comercial.'
@@ -812,7 +812,7 @@ export const INITIAL_FINANCIAL_RECORDS: FinancialRecordFile[] = [
       {
         id: 'aud-e2',
         timestamp: '2025-02-17 16:50:00',
-        advisorName: 'Zonyu Kim',
+        advisorName: 'Asesor Principal - Huánuco',
         action: 'Auditoría y cierre de revisión',
         changedTab: 'Informes y reportes',
         details: 'Verificación documental completada con dictamen técnico favorable.'

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEvalua } from '../context/EvaluaContext';
 import {
   FolderLock,
@@ -12,11 +12,25 @@ export const DocumentsView: React.FC = () => {
   const {
     dossiers,
     setSelectedDossierId,
-    toggleDocStatus
+    toggleDocStatus,
+    activeSubSection
   } = useEvalua();
 
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
+  const [filterCategory, setFilterCategory] = useState<string>('todas');
+
+  useEffect(() => {
+    if (activeSubSection === 'doc-personales') {
+      setFilterCategory('personales');
+    } else if (activeSubSection === 'doc-negocio') {
+      setFilterCategory('negocio');
+    } else if (activeSubSection === 'doc-financieros') {
+      setFilterCategory('financieros');
+    } else if (!activeSubSection) {
+      setFilterCategory('todas');
+    }
+  }, [activeSubSection]);
 
   const allDocs = dossiers.flatMap((d) =>
     d.documents.map((doc) => ({
@@ -39,6 +53,24 @@ export const DocumentsView: React.FC = () => {
 
     if (!matchesSearch) return false;
 
+    if (filterCategory === 'personales' && doc.documentType !== 'DNI') {
+      return false;
+    }
+    if (
+      filterCategory === 'negocio' &&
+      doc.documentType !== 'Documentación del negocio' &&
+      doc.documentType !== 'Otros documentos'
+    ) {
+      return false;
+    }
+    if (
+      filterCategory === 'financieros' &&
+      doc.documentType !== 'Sustento de ingresos' &&
+      doc.documentType !== 'Documentación patrimonial'
+    ) {
+      return false;
+    }
+
     if (filterStatus === 'verificados') return doc.status === 'Verificado';
     if (filterStatus === 'pendientes') return doc.status === 'Pendiente';
     if (filterStatus === 'observados') return doc.status === 'Observado';
@@ -52,74 +84,96 @@ export const DocumentsView: React.FC = () => {
   return (
     <div className="space-y-6 max-w-[1440px] mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-lg border border-[#E2E6EC]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-md bg-[#F7F8FA] border border-[#E2E6EC] text-[#004481] flex items-center justify-center shrink-0">
             <FolderLock className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#121212] tracking-tight">
               Control Documental y Requisitos de Crédito
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-[#5B6573] mt-0.5">
               Checklist centralizado: DNI, sustento de ingresos, documentación del negocio y patrimonial
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 text-xs">
-          <div className="px-4 py-2.5 bg-emerald-50 rounded-xl border border-emerald-200/80 text-center">
-            <span className="text-emerald-700 block text-[10px] uppercase font-bold">Cotejados</span>
-            <span className="text-lg font-black text-emerald-700 font-mono tabular-nums">{totalVerified}</span>
+          <div className="px-4 py-2 bg-[#ECFDF5] rounded-md border border-[#A7F3D0] text-center">
+            <span className="text-[#028448] block text-[10px] uppercase font-bold">Cotejados</span>
+            <span className="text-lg font-bold text-[#028448] font-mono tabular-nums">{totalVerified}</span>
           </div>
-          <div className="px-4 py-2.5 bg-amber-50 rounded-xl border border-amber-200/80 text-center">
-            <span className="text-amber-700 block text-[10px] uppercase font-bold">Pendientes</span>
-            <span className="text-lg font-black text-amber-700 font-mono tabular-nums">{totalPending}</span>
+          <div className="px-4 py-2 bg-[#FFFBEB] rounded-md border border-[#FDE68A] text-center">
+            <span className="text-[#B45309] block text-[10px] uppercase font-bold">Pendientes</span>
+            <span className="text-lg font-bold text-[#B45309] font-mono tabular-nums">{totalPending}</span>
           </div>
         </div>
       </div>
 
       {/* Filter and Table */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4">
+      <div className="bg-white border border-[#E2E6EC] rounded-lg p-5 space-y-4">
         <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
           <div className="w-full md:w-96 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar documento, solicitante o código..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#1D63ED]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-xs text-[#121212] placeholder:text-[#6B7280] outline-none focus:bg-white focus:border-[#004481]"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">
             {[
-              { id: 'todos', label: 'Todos' },
-              { id: 'verificados', label: 'Verificados / Conformes' },
-              { id: 'pendientes', label: 'Pendientes' },
-              { id: 'observados', label: 'Observados' }
-            ].map((tab) => (
+              { id: 'todas', label: 'Todas las categorías' },
+              { id: 'personales', label: 'Doc. personales' },
+              { id: 'negocio', label: 'Doc. negocio' },
+              { id: 'financieros', label: 'Doc. financieros' }
+            ].map((cat) => (
               <button
-                key={tab.id}
-                onClick={() => setFilterStatus(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  filterStatus === tab.id
-                    ? 'bg-amber-600 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                key={cat.id}
+                onClick={() => setFilterCategory(cat.id)}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+                  filterCategory === cat.id
+                    ? 'bg-[#004481] text-white'
+                    : 'bg-white text-[#374151] hover:bg-[#F7F8FA] border border-[#CBD5E1]'
                 }`}
               >
-                {tab.label}
+                {cat.label}
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-[#E2E6EC]">
+          <span className="text-[11px] font-semibold text-[#5B6573] mr-1">Estado:</span>
+          {[
+            { id: 'todos', label: 'Todos' },
+            { id: 'verificados', label: 'Verificados / Conformes' },
+            { id: 'pendientes', label: 'Pendientes' },
+            { id: 'observados', label: 'Observados' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setFilterStatus(tab.id)}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
+                filterStatus === tab.id
+                  ? 'bg-[#072146] text-white'
+                  : 'bg-white text-[#374151] hover:bg-[#F7F8FA] border border-[#CBD5E1]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+              <tr className="border-b border-[#E2E6EC] bg-[#F7F8FA] text-[#5B6573] font-semibold uppercase text-[10px] tracking-wider">
                 <th className="py-3 pl-3">Documento Requerido</th>
                 <th className="py-3">Tipo Requisito</th>
                 <th className="py-3">Expediente</th>
@@ -128,32 +182,32 @@ export const DocumentsView: React.FC = () => {
                 <th className="py-3 pr-3 text-right">Acción</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#E2E6EC]">
               {filteredDocs.map((doc) => (
-                <tr key={`${doc.dossierId}-${doc.id}`} className="hover:bg-blue-50/30 transition-colors">
-                  <td className="py-3 pl-3 font-bold text-[#0B2545]">
+                <tr key={`${doc.dossierId}-${doc.id}`} className="hover:bg-[#F7F8FA] transition-colors">
+                  <td className="py-3 pl-3 font-semibold text-[#121212]">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-[#1D63ED]" />
+                      <FileText className="w-4 h-4 text-[#004481]" />
                       <span>{doc.name}</span>
                     </div>
                   </td>
-                  <td className="py-3 text-slate-600 text-[11px]">
+                  <td className="py-3 text-[#5B6573] text-[11px]">
                     {doc.documentType}
                   </td>
-                  <td className="py-3 font-mono font-bold text-[#1D63ED]">
+                  <td className="py-3 font-mono font-bold text-[#004481]">
                     {doc.dossierCode}
                   </td>
-                  <td className="py-3 text-slate-700 font-medium">
+                  <td className="py-3 text-[#121212] font-medium">
                     {doc.applicantName}
                   </td>
                   <td className="py-3 text-center">
                     <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      className={`px-2.5 py-0.5 rounded text-[10px] font-semibold border ${
                         doc.status === 'Verificado'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          ? 'bg-[#ECFDF5] text-[#028448] border-[#A7F3D0]'
                           : doc.status === 'Observado'
-                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          ? 'bg-[#FEF2F2] text-[#C81E1E] border-[#FECACA]'
+                          : 'bg-[#FFFBEB] text-[#B45309] border-[#FDE68A]'
                       }`}
                     >
                       {doc.status}
@@ -163,10 +217,10 @@ export const DocumentsView: React.FC = () => {
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => toggleDocStatus(doc.dossierId, doc.id, doc.status === 'Verificado' ? 'Pendiente' : 'Verificado')}
-                        className={`p-1.5 rounded-lg text-xs font-bold cursor-pointer ${
+                        className={`p-1.5 rounded-md text-xs font-semibold cursor-pointer border ${
                           doc.status === 'Verificado'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            ? 'bg-[#ECFDF5] text-[#028448] border-[#A7F3D0]'
+                            : 'bg-white text-[#374151] border-[#CBD5E1] hover:bg-[#F7F8FA]'
                         }`}
                         title={doc.status === 'Verificado' ? 'Marcar pendiente' : 'Marcar verificado'}
                       >
@@ -174,7 +228,7 @@ export const DocumentsView: React.FC = () => {
                       </button>
                       <button
                         onClick={() => setSelectedDossierId(doc.dossierId)}
-                        className="p-1.5 rounded-lg bg-blue-50 hover:bg-[#1D63ED] text-[#1D63ED] hover:text-white transition-colors cursor-pointer"
+                        className="p-1.5 rounded-md bg-[#F0F5FA] hover:bg-[#004481] text-[#004481] hover:text-white border border-[#B8D0E6] transition-colors cursor-pointer"
                         title="Ver expediente"
                       >
                         <FolderOpen className="w-3.5 h-3.5" />

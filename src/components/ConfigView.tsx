@@ -167,6 +167,55 @@ export const ConfigView: React.FC = () => {
         </div>
       </div>
 
+      {/* Plan y Suscripción de la Plataforma EVALÚA */}
+      <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <h3 className="text-sm font-extrabold text-[#0B2545]">
+              Estructura de Planes y Suscripción de EVALÚA
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Tarifas vigentes del servicio digital por usuario (no modifica datos de expedientes crediticios)
+            </p>
+          </div>
+          <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold self-start sm:self-auto">
+            Prueba gratuita: 30 días sin costo
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Plan Mensual</span>
+            <div className="text-xl font-black text-[#0B2545] font-mono tabular-nums">
+              S/ 25.00 <span className="text-xs font-sans font-semibold text-slate-500">/ usuario al mes</span>
+            </div>
+            <p className="text-slate-600 leading-relaxed">
+              Acceso mensual por usuario con 30 días de prueba sin costo.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#EFF6FF]/70 border border-blue-200/80 space-y-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#1D63ED] block">Plan Anual · Beneficio 2 meses</span>
+            <div className="text-xl font-black text-[#0B2545] font-mono tabular-nums">
+              S/ 250.00 <span className="text-xs font-sans font-semibold text-slate-500">/ usuario al año</span>
+            </div>
+            <p className="text-slate-600 leading-relaxed">
+              Equivalente a 10 meses respecto al pago mensual (beneficio de 2 meses al año).
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Entidades Financieras</span>
+            <div className="text-xl font-black text-[#0B2545]">
+              Precio a convenir
+            </div>
+            <p className="text-slate-600 leading-relaxed">
+              Según la cantidad de usuarios y las necesidades operativas de cada entidad.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Bitácora de Auditoría del Sistema */}
       <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
         <div className="flex items-center justify-between">

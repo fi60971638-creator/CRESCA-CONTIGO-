@@ -23,28 +23,28 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs transition-all duration-200 ${
-        onClick ? 'cursor-pointer hover:border-evalua-blue hover:shadow-md hover:-translate-y-0.5' : ''
+      className={`bg-white rounded-lg border border-[#E2E6EC] p-5 transition-colors duration-150 ${
+        onClick ? 'cursor-pointer hover:border-[#004481]' : ''
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+        <span className="text-xs font-semibold text-[#5B6573]">
           {title}
         </span>
-        <div className="w-10 h-10 rounded-xl bg-evalua-sky text-evalua-blue flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-md bg-[#F7F8FA] border border-[#E2E6EC] text-[#004481] flex items-center justify-center shrink-0">
           {icon}
         </div>
       </div>
-      <div className="mt-4 flex items-baseline gap-2">
-        <span className="text-2xl sm:text-3xl font-extrabold text-evalua-navy tracking-tight">
+      <div className="mt-3 flex items-baseline gap-2">
+        <span className="text-2xl sm:text-3xl font-bold text-[#121212] tracking-tight tabular-nums">
           {value}
         </span>
         {trend && (
           <span
-            className={`text-xs font-bold px-1.5 py-0.5 rounded-sm ${
+            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
               trend.isPositive
-                ? 'bg-emerald-50 text-evalua-green'
-                : 'bg-rose-50 text-rose-600'
+                ? 'bg-[#ECFDF5] text-[#028448]'
+                : 'bg-[#FEF2F2] text-[#C81E1E]'
             }`}
           >
             {trend.value}
@@ -52,7 +52,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         )}
       </div>
       {subtitle && (
-        <p className="mt-1.5 text-xs text-slate-500 font-medium">{subtitle}</p>
+        <p className="mt-1.5 text-xs text-[#5B6573] font-medium">{subtitle}</p>
       )}
     </div>
   );

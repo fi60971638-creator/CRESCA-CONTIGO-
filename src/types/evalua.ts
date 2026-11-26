@@ -143,6 +143,125 @@ export interface IncomeStatementData {
   availableResult: number;
 }
 
+export type VerificationBadgeStatus =
+  | 'Verificado por el analista'
+  | 'Declarado por el solicitante'
+  | 'Pendiente de verificación'
+  | 'Observado';
+
+export type CurrentAssetCategory =
+  | 'Caja'
+  | 'Bancos'
+  | 'Cuentas por cobrar'
+  | 'Inventarios'
+  | 'Anticipos a proveedores'
+  | 'Otros activos corrientes';
+
+export interface CurrentAssetAccountItem {
+  id: string;
+  category: CurrentAssetCategory;
+  name: string;
+  description: string;
+  amount: number;
+  recordedDate: string;
+  observations?: string;
+  supportDocument?: string;
+  verificationStatus: VerificationBadgeStatus;
+  isInventoryLinked?: boolean;
+  isCustom?: boolean;
+}
+
+export type FixedAssetCategory =
+  | 'Terrenos'
+  | 'Edificaciones'
+  | 'Maquinaria y equipos'
+  | 'Muebles y enseres'
+  | 'Vehículos'
+  | 'Equipos informáticos'
+  | 'Otros activos fijos';
+
+export interface FixedAssetItem {
+  id: string;
+  category: FixedAssetCategory;
+  name: string;
+  description: string;
+  acquisitionDate: string;
+  estimatedValue: number;
+  location: string;
+  supportDocument: string;
+  verificationStatus: VerificationBadgeStatus;
+  observations?: string;
+  isCustom?: boolean;
+}
+
+export type LiabilitySubCategory =
+  | 'Préstamos de corto plazo'
+  | 'Deudas con proveedores'
+  | 'Cuentas por pagar'
+  | 'Otras obligaciones de corto plazo'
+  | 'Préstamos de largo plazo'
+  | 'Financiamiento de activos'
+  | 'Otras obligaciones de largo plazo';
+
+export interface EquityAccountItem {
+  id: string;
+  name: string;
+  amount: number;
+  observations?: string;
+}
+
+export interface EquityBreakdown {
+  contributedCapital: number; // Capital aportado
+  retainedEarnings: number; // Resultados acumulados
+  periodResult: number; // Resultado del ejercicio
+  otherEquityAccounts: EquityAccountItem[];
+}
+
+export interface BalanceObservationItem {
+  id: string;
+  date: string;
+  author: string;
+  section: string;
+  note: string;
+}
+
+export interface BalanceSheetSnapshot {
+  id: string;
+  balanceDate: string;
+  evaluationPeriod: string;
+  currency: 'S/';
+  savedAt: string;
+  savedBy: string;
+  isDraft: boolean;
+  inventoryValueAtSnapshot: number;
+  totalCurrentAssets: number;
+  totalNonCurrentAssets: number;
+  totalAssets: number;
+  totalCurrentLiabilities: number;
+  totalNonCurrentLiabilities: number;
+  totalLiabilities: number;
+  totalDeclaredEquity: number;
+  computedEquity: number;
+  difference: number;
+  currentAssets: CurrentAssetAccountItem[];
+  nonCurrentAssets: FixedAssetItem[];
+  obligations: FinancialObligation[];
+  equityBreakdown: EquityBreakdown;
+  observations: BalanceObservationItem[];
+}
+
+export interface BalanceSheetDetail {
+  balanceDate: string;
+  evaluationPeriod: string;
+  currency: 'S/';
+  isDraft?: boolean;
+  lastSavedAt?: string;
+  currentAssets: CurrentAssetAccountItem[];
+  nonCurrentAssets: FixedAssetItem[];
+  equityBreakdown: EquityBreakdown;
+  observations: BalanceObservationItem[];
+}
+
 // 13. Balance General / Situación Patrimonial
 export interface BalanceSheetData {
   // Activos Corrientes
@@ -188,9 +307,11 @@ export interface FinancialObligation {
   id: string;
   entityName: string;
   creditType: string;
+  termType?: 'corriente' | 'no_corriente';
+  subCategory?: LiabilitySubCategory;
   originalAmount: number;
-  currentBalance: number;
-  monthlyInstallment: number;
+  currentBalance: number; // Saldo pendiente (va al Balance General)
+  monthlyInstallment: number; // Cuota mensual (va a Capacidad de Pago, NO se confunde con saldo)
   totalInstallments: number;
   paidInstallments: number;
   pendingInstallments: number;
@@ -238,14 +359,59 @@ export interface FinancialRatiosData {
 }
 
 // 18. Inventario
+export interface InventoryAttachment {
+  id: string;
+  fileName: string;
+  fileSize: string;
+  uploadedAt: string;
+}
+
 export interface InventoryItem {
   id: string;
+  code?: string;
   productName: string;
+  category?: string;
+  description?: string;
+  unit?: string;
   quantity: number;
-  unitCost: number;
+  unitCost: number; // Costo unitario de adquisición (NO precio de venta)
   totalCostValue: number; // quantity * unitCost
   sellingPrice: number;
+  status?: VerificationBadgeStatus;
   observations?: string;
+  attachments?: InventoryAttachment[];
+}
+
+export interface InventoryMetadata {
+  inventoryDate: string;
+  responsibleName: string;
+  location: string;
+  generalObservations: string;
+  verificationStatus: VerificationBadgeStatus;
+  declaredTotalValue?: number; // Monto declarado por solicitante para contraste vs verificado
+  customCategories?: string[];
+  observationsLog?: {
+    id: string;
+    date: string;
+    author: string;
+    note: string;
+  }[];
+}
+
+export interface InventoryValuationSnapshot {
+  id: string;
+  inventoryDate: string;
+  savedAt: string;
+  savedBy: string;
+  responsibleName: string;
+  location: string;
+  verificationStatus: VerificationBadgeStatus;
+  declaredTotalValue?: number;
+  totalItems: number;
+  totalUnits: number;
+  totalValue: number;
+  items: InventoryItem[];
+  generalObservations?: string;
 }
 
 // 19. Cuentas por Cobrar
@@ -380,6 +546,8 @@ export interface CreditEvaluationDossier {
   // 12-13. Financial Statements
   incomeStatement: IncomeStatementData;
   balanceSheet: BalanceSheetData;
+  balanceSheetDetail?: BalanceSheetDetail;
+  balanceSnapshots?: BalanceSheetSnapshot[];
 
   // 14. Obligations
   obligations: FinancialObligation[];
@@ -391,6 +559,8 @@ export interface CreditEvaluationDossier {
 
   // 18-20. Detail Tables
   inventory: InventoryItem[];
+  inventoryMeta?: InventoryMetadata;
+  inventorySnapshots?: InventoryValuationSnapshot[];
   accountsReceivable: AccountReceivableItem[];
   accountsPayable: AccountPayableItem[];
 

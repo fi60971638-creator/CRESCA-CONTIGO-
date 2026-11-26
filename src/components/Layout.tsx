@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useEvalua } from '../context/EvaluaContext';
 import {
   LayoutDashboard,
@@ -10,7 +11,7 @@ import {
   TrendingUp,
   BarChart3,
   Scale,
-  ClipboardList,
+  ClipboardCheck,
   CheckCircle2,
   Users,
   MessageSquareText,
@@ -20,6 +21,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  ChevronRight,
   RotateCcw,
   Plus,
   Bell,
@@ -29,11 +31,48 @@ import {
   FileSpreadsheet,
   Settings,
   UserCog,
-  Clock
+  Wallet,
+  Receipt,
+  Landmark,
+  ArrowLeftRight,
+  PieChart,
+  FilePenLine,
+  Calculator,
+  Banknote,
+  CalendarCheck,
+  Activity,
+  Building2,
+  Boxes,
+  Shield,
+  FolderOpen,
+  UserCheck,
+  FileBadge,
+  UserPlus,
+  PhoneCall,
+  History,
+  Lock
 } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
+}
+
+interface SubMenuItem {
+  key: string;
+  label: string;
+  tab: string;
+  subSection: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+interface SidebarCategoryItem {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badgeClass: string;
+  activeBadgeClass: string;
+  tab?: string;
+  children?: SubMenuItem[];
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
@@ -41,6 +80,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     currentUser,
     logout,
     activeTab,
+    activeNavKey,
+    navigateTo,
     setActiveTab,
     globalSearchQuery,
     setGlobalSearchQuery,
@@ -55,6 +96,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   } = useEvalua();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [showBackupModal, setShowBackupModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [backupImportStatus, setBackupImportStatus] = useState<string | null>(null);
@@ -87,32 +129,356 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const primaryNav = [
-    { id: 'panel_principal', label: 'Panel principal', icon: LayoutDashboard, iconColor: 'text-[#1D63ED]' },
-    { id: 'expedientes', label: 'Expedientes', icon: FolderKanban, iconColor: 'text-slate-500' },
-    { id: 'solicitudes', label: 'Solicitudes', icon: FileText, iconColor: 'text-slate-500' }
+  const generalNav: SidebarCategoryItem[] = [
+    {
+      key: 'panel_principal',
+      label: 'Panel principal',
+      tab: 'panel_principal',
+      icon: LayoutDashboard,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white'
+    },
+    {
+      key: 'expedientes',
+      label: 'Expedientes',
+      tab: 'expedientes',
+      icon: FolderKanban,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white'
+    },
+    {
+      key: 'solicitudes',
+      label: 'Solicitudes',
+      tab: 'solicitudes',
+      icon: FileText,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white'
+    }
   ];
 
-  const moduleStepsNav = [
-    { id: 'solicitante', label: '1. Solicitante', icon: User, iconColor: 'text-[#1D63ED]' },
-    { id: 'negocio', label: '2. Negocio', icon: Briefcase, iconColor: 'text-[#16A34A]' },
-    { id: 'credito', label: '3. Crédito', icon: CreditCard, iconColor: 'text-[#8B5CF6]' },
-    { id: 'ingresos_gastos', label: '4. Ingresos y gastos', icon: TrendingUp, iconColor: 'text-[#F59E0B]' },
-    { id: 'balance', label: '5. Estados financieros y balance', icon: BarChart3, iconColor: 'text-[#0EA5E9]' },
-    { id: 'capacidad', label: '6. Capacidad de pago', icon: Scale, iconColor: 'text-[#16A34A]' },
-    { id: 'inventario_documentos', label: '7. Inventario y documentos', icon: ClipboardList, iconColor: 'text-[#8B5CF6]' },
-    { id: 'conclusion', label: '8. Conclusión', icon: CheckCircle2, iconColor: 'text-[#F59E0B]' }
+  const expedienteNav: SidebarCategoryItem[] = [
+    {
+      key: 'solicitante',
+      label: '1. Solicitante',
+      tab: 'solicitante',
+      icon: User,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white'
+    },
+    {
+      key: 'negocio',
+      label: '2. Negocio y actividad económica',
+      tab: 'negocio',
+      icon: Briefcase,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white'
+    },
+    {
+      key: 'credito',
+      label: '3. Solicitud de crédito',
+      tab: 'credito',
+      icon: CreditCard,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white'
+    },
+    {
+      key: 'cat_info_economica',
+      label: '4. Información económica',
+      icon: Wallet,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white',
+      children: [
+        {
+          key: 'econ_ingresos',
+          label: 'Ingresos',
+          tab: 'ingresos_gastos',
+          subSection: 'econ-ingresos',
+          icon: TrendingUp
+        },
+        {
+          key: 'econ_gastos',
+          label: 'Gastos',
+          tab: 'ingresos_gastos',
+          subSection: 'econ-gastos',
+          icon: Receipt
+        },
+        {
+          key: 'econ_obligaciones',
+          label: 'Deudas y obligaciones',
+          tab: 'capacidad',
+          subSection: 'econ-obligaciones',
+          icon: Landmark
+        }
+      ]
+    },
+    {
+      key: 'cat_estados_financieros',
+      label: '5. Estados financieros',
+      icon: BarChart3,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white',
+      children: [
+        {
+          key: 'ef_balance',
+          label: 'Balance general',
+          tab: 'balance',
+          subSection: 'ef-balance',
+          icon: Scale
+        },
+        {
+          key: 'ef_resultados',
+          label: 'Estado de resultados',
+          tab: 'balance',
+          subSection: 'ef-resultados',
+          icon: FileSpreadsheet
+        },
+        {
+          key: 'ef_flujo',
+          label: 'Flujo de caja',
+          tab: 'capacidad',
+          subSection: 'ef-flujo',
+          icon: ArrowLeftRight
+        },
+        {
+          key: 'ef_patrimonio',
+          label: 'Cambios en el patrimonio',
+          tab: 'balance',
+          subSection: 'ef-patrimonio',
+          icon: PieChart
+        },
+        {
+          key: 'ef_notas',
+          label: 'Notas y observaciones',
+          tab: 'conclusion',
+          subSection: 'ef-notas',
+          icon: FilePenLine
+        }
+      ]
+    },
+    {
+      key: 'cat_capacidad_pago',
+      label: '6. Capacidad de pago',
+      icon: Calculator,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white',
+      children: [
+        {
+          key: 'cap_ingresos',
+          label: 'Ingresos disponibles',
+          tab: 'capacidad',
+          subSection: 'cap-ingresos',
+          icon: Banknote
+        },
+        {
+          key: 'cap_cuotas',
+          label: 'Cuotas y obligaciones',
+          tab: 'capacidad',
+          subSection: 'cap-cuotas',
+          icon: CalendarCheck
+        },
+        {
+          key: 'cap_excedente',
+          label: 'Excedente mensual',
+          tab: 'capacidad',
+          subSection: 'cap-excedente',
+          icon: TrendingUp
+        },
+        {
+          key: 'cap_indicadores',
+          label: 'Indicadores de capacidad de pago',
+          tab: 'capacidad',
+          subSection: 'cap-indicadores',
+          icon: Activity
+        }
+      ]
+    },
+    {
+      key: 'cat_patrimonio_garantias',
+      label: '7. Patrimonio y garantías',
+      icon: ShieldCheck,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white',
+      children: [
+        {
+          key: 'pat_bienes',
+          label: 'Bienes y activos',
+          tab: 'balance',
+          subSection: 'pat-bienes',
+          icon: Building2
+        },
+        {
+          key: 'pat_inventario',
+          label: 'Inventario del negocio',
+          tab: 'inventario_documentos',
+          subSection: 'pat-inventario',
+          icon: Boxes
+        },
+        {
+          key: 'pat_garantias',
+          label: 'Garantías y avales',
+          tab: 'credito',
+          subSection: 'pat-garantias',
+          icon: Shield
+        }
+      ]
+    },
+    {
+      key: 'cat_documentacion',
+      label: '8. Documentación',
+      icon: FolderOpen,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white',
+      children: [
+        {
+          key: 'doc_personales',
+          label: 'Documentos personales',
+          tab: 'documentos',
+          subSection: 'doc-personales',
+          icon: UserCheck
+        },
+        {
+          key: 'doc_negocio',
+          label: 'Documentos del negocio',
+          tab: 'documentos',
+          subSection: 'doc-negocio',
+          icon: FileBadge
+        },
+        {
+          key: 'doc_financieros',
+          label: 'Documentos financieros',
+          tab: 'documentos',
+          subSection: 'doc-financieros',
+          icon: FileSpreadsheet
+        },
+        {
+          key: 'doc_control',
+          label: 'Control de documentos',
+          tab: 'inventario_documentos',
+          subSection: 'doc-control',
+          icon: ClipboardCheck
+        }
+      ]
+    },
+    {
+      key: 'cat_referencias',
+      label: '9. Referencias',
+      icon: Users,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white',
+      children: [
+        {
+          key: 'ref_personales',
+          label: 'Personales',
+          tab: 'referencias',
+          subSection: 'ref-personales',
+          icon: UserPlus
+        },
+        {
+          key: 'ref_comerciales',
+          label: 'Comerciales',
+          tab: 'referencias',
+          subSection: 'ref-comerciales',
+          icon: Briefcase
+        },
+        {
+          key: 'ref_resultados',
+          label: 'Resultados de contacto',
+          tab: 'referencias',
+          subSection: 'ref-resultados',
+          icon: PhoneCall
+        }
+      ]
+    },
+    {
+      key: 'cat_obs_seguimiento',
+      label: '10. Observaciones y seguimiento',
+      icon: CalendarClock,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white',
+      children: [
+        {
+          key: 'obs_analista',
+          label: 'Observaciones del analista',
+          tab: 'observaciones',
+          subSection: 'obs-analista',
+          icon: MessageSquareText
+        },
+        {
+          key: 'obs_historial',
+          label: 'Historial de actividades',
+          tab: 'seguimiento',
+          subSection: 'obs-historial',
+          icon: History
+        },
+        {
+          key: 'obs_estado',
+          label: 'Estado de la solicitud',
+          tab: 'conclusion',
+          subSection: 'obs-estado',
+          icon: CheckCircle2
+        }
+      ]
+    }
   ];
 
-  const operationalNav = [
-    { id: 'referencias', label: 'Referencias', icon: Users, iconColor: 'text-[#0EA5E9]' },
-    { id: 'observaciones', label: 'Observaciones', icon: MessageSquareText, iconColor: 'text-[#1D63ED]' },
-    { id: 'seguimiento', label: 'Seguimiento', icon: CalendarClock, iconColor: 'text-[#8B5CF6]' },
-    { id: 'reportes', label: 'Reportes y PDF', icon: FileSpreadsheet, iconColor: 'text-[#16A34A]' }
+  const configNav: SidebarCategoryItem[] = [
+    {
+      key: 'usuarios',
+      label: 'Usuarios y permisos',
+      tab: 'usuarios',
+      icon: UserCog,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#004481] text-white'
+    },
+    {
+      key: 'configuracion',
+      label: 'Configuración general',
+      tab: 'configuracion',
+      icon: Settings,
+      badgeClass: 'bg-[#F7F8FA] text-[#5B6573]',
+      activeBadgeClass: 'bg-[#072146] text-white'
+    }
   ];
 
-  const handleNavItemClick = (navId: string) => {
-    setActiveTab(navId);
+  // Auto-expand parent category when navigating from external views (e.g. dashboard, wizard, step buttons)
+  useEffect(() => {
+    const matchingParent = expedienteNav.find(
+      (cat) =>
+        cat.children &&
+        (cat.children.some((child) => child.key === activeNavKey) ||
+          cat.children.some((child) => child.tab === activeTab))
+    );
+    if (matchingParent) {
+      setExpandedCategory(matchingParent.key);
+    }
+  }, [activeNavKey, activeTab]);
+
+  const isChildActive = (child: SubMenuItem) => {
+    if (activeNavKey === child.key) return true;
+    // Fallback highlight when navigated via generic tab without specific subKey
+    if (activeNavKey === activeTab && child.tab === activeTab) {
+      const parentCat = expedienteNav.find((c) => c.children?.some((ch) => ch.key === child.key));
+      const firstMatch = parentCat?.children?.find((ch) => ch.tab === activeTab);
+      return firstMatch?.key === child.key;
+    }
+    return false;
+  };
+
+  const isCategoryActive = (item: SidebarCategoryItem) => {
+    if (item.tab && activeTab === item.tab && activeNavKey === item.key) return true;
+    if (item.tab && activeTab === item.tab && !item.children) return true;
+    if (item.children) {
+      return item.children.some((child) => isChildActive(child));
+    }
+    return false;
+  };
+
+  const handleToggleCategory = (catKey: string) => {
+    setExpandedCategory((prev) => (prev === catKey ? null : catKey));
+  };
+
+  const handleLeafClick = (tab: string, navKey: string, subSection: string | null = null) => {
+    navigateTo(tab, navKey, subSection);
     setIsMobileMenuOpen(false);
   };
 
@@ -179,141 +545,172 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     setShowExportMenu(false);
   };
 
+  const renderCategoryItem = (item: SidebarCategoryItem) => {
+    const Icon = item.icon;
+    const hasChildren = Boolean(item.children && item.children.length > 0);
+    const isExpanded = expandedCategory === item.key;
+    const active = isCategoryActive(item);
+    const isRestrictedAdminItem = item.key === 'usuarios' && currentUser?.role !== 'admin';
+
+    return (
+      <div key={item.key} className="space-y-0.5">
+        <button
+          type="button"
+          aria-expanded={hasChildren ? isExpanded : undefined}
+          onClick={() => {
+            if (hasChildren) {
+              handleToggleCategory(item.key);
+            } else if (item.tab) {
+              handleLeafClick(item.tab, item.key, null);
+            }
+          }}
+          className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-md text-[12.5px] transition-all duration-150 cursor-pointer text-left group ${
+            active
+              ? 'bg-[#F0F5FA] text-[#072146] font-bold'
+              : isExpanded
+              ? 'bg-[#F7F8FA] text-[#121212] font-semibold'
+              : 'text-[#374151] hover:text-[#121212] hover:bg-[#F7F8FA] hover:translate-x-0.5 font-medium'
+          }`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span
+              className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-105 ${
+                active ? item.activeBadgeClass : item.badgeClass
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+            </span>
+            <span className="truncate leading-snug">{item.label}</span>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            {isRestrictedAdminItem && (
+              <Lock className="w-3 h-3 text-[#6B7280]" aria-label="Solo administrador" />
+            )}
+            {hasChildren && (
+              <ChevronRight
+                className={`w-3.5 h-3.5 transition-transform duration-150 ${
+                  isExpanded
+                    ? 'rotate-90 text-[#004481]'
+                    : active
+                    ? 'text-[#004481]'
+                    : 'text-[#6B7280] group-hover:text-[#121212]'
+                }`}
+              />
+            )}
+          </div>
+        </button>
+
+        {/* Collapsible Submenu */}
+        <AnimatePresence initial={false}>
+          {hasChildren && isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              className="ml-[20px] pl-2.5 py-1 border-l border-[#E2E6EC] space-y-0.5 overflow-hidden"
+            >
+              {item.children!.map((child) => {
+                const ChildIcon = child.icon;
+                const childActive = isChildActive(child);
+                return (
+                  <button
+                    key={child.key}
+                    type="button"
+                    onClick={() => handleLeafClick(child.tab, child.key, child.subSection)}
+                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] transition-all duration-150 cursor-pointer text-left ${
+                      childActive
+                        ? 'bg-[#F0F5FA] text-[#004481] font-bold'
+                        : 'text-[#5B6573] hover:text-[#121212] hover:bg-[#F7F8FA] hover:translate-x-0.5 font-medium'
+                    }`}
+                  >
+                    <ChildIcon
+                      className={`w-3.5 h-3.5 shrink-0 ${
+                        childActive ? 'text-[#004481]' : 'text-[#6B7280]'
+                      }`}
+                    />
+                    <span className="truncate leading-snug">{child.label}</span>
+                  </button>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
   const renderSidebarContent = () => (
-    <div className="flex flex-col h-full justify-between">
-      <div className="overflow-y-auto flex-1">
-        {/* Brand Header */}
-        <div className="px-4 h-16 border-b border-slate-200/80 flex items-center gap-2.5 shrink-0">
-          <img
-            src="/assets/evalua-icono.png"
-            alt="EVALÚA PERÚ"
-            className="w-8 h-8 object-contain shrink-0"
-          />
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="text-lg font-extrabold tracking-tight text-[#0B2545] whitespace-nowrap">
-              EVALÚA
-            </span>
-            <span className="text-[10px] font-bold text-[#1D63ED] bg-[#EFF6FF] px-1.5 py-0.5 rounded border border-blue-200/70 tracking-wide whitespace-nowrap">
-              PERÚ
-            </span>
+    <div className="flex flex-col h-full justify-between bg-white">
+      {/* Brand Header (Fixed top) */}
+      <div className="px-4 h-16 border-b border-[#E2E6EC] flex items-center gap-2.5 shrink-0 bg-white">
+        <img
+          src="/assets/evalua-icono.png"
+          alt="EVALÚA PERÚ"
+          className="w-7 h-7 object-contain shrink-0"
+        />
+        <span className="text-base font-extrabold tracking-tight text-[#072146] whitespace-nowrap">
+          EVALÚA PERÚ
+        </span>
+      </div>
+
+      {/* Primary CTA Button (+ Nuevo expediente in Institutional Banking Blue) */}
+      <div className="px-3.5 pt-3.5 pb-2 shrink-0 bg-white">
+        <button
+          onClick={() => {
+            setIsNewDossierModalOpen(true);
+            setIsMobileMenuOpen(false);
+          }}
+          className="w-full py-2.5 px-4 rounded-md bg-[#004481] hover:bg-[#072146] text-white text-xs font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 stroke-[2.25]" />
+          <span>Nuevo expediente</span>
+        </button>
+      </div>
+
+      {/* Scrollable Hierarchical Navigation */}
+      <nav aria-label="Navegación principal" className="overflow-y-auto flex-1 px-3 py-2 space-y-4">
+        {/* GENERAL */}
+        <div className="space-y-1">
+          <div className="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+            GENERAL
+          </div>
+          <div className="space-y-0.5">
+            {generalNav.map(renderCategoryItem)}
           </div>
         </div>
 
-        {/* Primary CTA Button (+ Nuevo expediente in Electric Blue) */}
-        <div className="p-3.5 pb-2">
-          <button
-            onClick={() => {
-              setIsNewDossierModalOpen(true);
-              setIsMobileMenuOpen(false);
-            }}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#1D63ED] hover:bg-[#1552CE] text-white text-xs font-bold transition-all shadow-sm hover:shadow flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Nuevo expediente</span>
-          </button>
+        <div className="mx-2 border-t border-[#E2E6EC]" />
+
+        {/* GESTIÓN DEL EXPEDIENTE */}
+        <div className="space-y-1">
+          <div className="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+            GESTIÓN DEL EXPEDIENTE
+          </div>
+          <div className="space-y-0.5">
+            {expedienteNav.map(renderCategoryItem)}
+          </div>
         </div>
 
-        {/* Primary Navigation */}
-        <nav className="px-3 py-2 space-y-0.5">
-          {primaryNav.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavItemClick(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-colors cursor-pointer text-left ${
-                  isActive
-                    ? 'bg-[#EFF6FF] text-[#1D63ED] font-bold'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/70 font-medium'
-                }`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1D63ED]' : item.iconColor}`} />
-                <span className="truncate">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
+        <div className="mx-2 border-t border-[#E2E6EC]" />
 
-        <div className="mx-4 my-1.5 border-t border-slate-200/80" />
-
-        {/* Numbered 8 Dossier Sections */}
-        <div className="px-3 py-1 space-y-0.5">
-          {moduleStepsNav.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavItemClick(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] transition-colors cursor-pointer text-left ${
-                  isActive
-                    ? 'bg-[#EFF6FF] text-[#1D63ED] font-bold'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/70 font-medium'
-                }`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1D63ED]' : item.iconColor}`} />
-                <span className="truncate">{item.label}</span>
-              </button>
-            );
-          })}
+        {/* CONFIGURACIÓN */}
+        <div className="space-y-1 pb-2">
+          <div className="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+            CONFIGURACIÓN
+          </div>
+          <div className="space-y-0.5">
+            {configNav.map(renderCategoryItem)}
+          </div>
         </div>
+      </nav>
 
-        <div className="mx-4 my-1.5 border-t border-slate-200/80" />
-
-        {/* Complementary Operational Modules */}
-        <div className="px-3 py-1 pb-4 space-y-0.5">
-          {operationalNav.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleNavItemClick(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] transition-colors cursor-pointer text-left ${
-                  isActive
-                    ? 'bg-[#EFF6FF] text-[#1D63ED] font-bold'
-                    : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/70 font-medium'
-                }`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#1D63ED]' : item.iconColor}`} />
-                <span className="truncate">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Sidebar Bottom Security & Session */}
-      <div className="p-3 border-t border-slate-200/80 bg-slate-50/70 space-y-1.5 shrink-0">
-        {currentUser?.role === 'admin' && (
-          <button
-            onClick={() => handleNavItemClick('usuarios')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
-              activeTab === 'usuarios'
-                ? 'bg-[#EFF6FF] text-[#1D63ED] font-bold'
-                : 'text-slate-600 hover:bg-slate-100 font-semibold'
-            }`}
-          >
-            <UserCog className="w-4 h-4 shrink-0" />
-            <span className="truncate">Usuarios y roles</span>
-          </button>
-        )}
-        <button
-          onClick={() => handleNavItemClick('configuracion')}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
-            activeTab === 'configuracion'
-              ? 'bg-[#EFF6FF] text-[#1D63ED] font-bold'
-              : 'text-slate-600 hover:bg-slate-100 font-semibold'
-          }`}
-        >
-          <ShieldCheck className="w-4 h-4 shrink-0" />
-          <span className="truncate">Seguridad y auditoría</span>
-        </button>
-
+      {/* Sidebar Bottom Session Footer */}
+      <div className="p-3 border-t border-[#E2E6EC] bg-white shrink-0">
         <button
           onClick={logout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-[#C81E1E] hover:bg-[#FEF2F2] transition-colors cursor-pointer"
         >
           <LogOut className="w-4 h-4 shrink-0" />
           <span>Cerrar sesión</span>
@@ -323,9 +720,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] text-slate-900 flex font-sans selection:bg-[#1D63ED] selection:text-white">
+    <div className="min-h-screen bg-white text-[#121212] flex font-sans selection:bg-[#004481] selection:text-white">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200/80 flex-col shrink-0 sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-72 bg-white border-r border-[#E2E6EC] flex-col shrink-0 sticky top-0 h-screen">
         {renderSidebarContent()}
       </aside>
 
@@ -349,20 +746,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Clean White Top Header */}
-        <header className="h-16 bg-white border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
+        <header className="h-16 bg-white border-b border-[#E2E6EC] px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             {/* Mobile menu trigger */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Abrir menú"
-              className="lg:hidden p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer"
+              className="lg:hidden p-2 rounded-md border border-[#CBD5E1] bg-white text-[#121212] hover:bg-[#F7F8FA] cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             {/* Universal Search Input */}
             <div ref={searchRef} className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={globalSearchQuery}
@@ -372,7 +769,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   setShowSearchDropdown(true);
                 }}
                 placeholder="Buscar por DNI, RUC, cliente o código de expediente"
-                className="w-full pl-10 pr-8 py-2 rounded-full bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#1D63ED] focus:ring-2 focus:ring-[#1D63ED]/15 transition-all"
+                className="w-full pl-10 pr-8 py-2 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-xs font-medium text-[#121212] placeholder:text-[#6B7280] focus:outline-none focus:bg-white focus:border-[#004481] focus:ring-2 focus:ring-[#004481]/15 transition-colors"
               />
               {globalSearchQuery && (
                 <button
@@ -380,7 +777,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     setGlobalSearchQuery('');
                     setShowSearchDropdown(false);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#121212] text-xs font-bold cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -388,22 +785,22 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* Live Search Dropdown */}
               {showSearchDropdown && globalSearchQuery.trim() !== '' && (
-                <div className="absolute left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden z-50">
-                  <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-500 flex items-center justify-between">
+                <div className="absolute left-0 right-0 mt-1.5 bg-white rounded-lg border border-[#E2E6EC] shadow-sm overflow-hidden z-50">
+                  <div className="px-3.5 py-2 bg-[#F7F8FA] border-b border-[#E2E6EC] text-[11px] font-semibold text-[#5B6573] flex items-center justify-between">
                     <span>Resultados ({searchResults.length})</span>
                     <button
                       onClick={() => {
                         setShowSearchDropdown(false);
                         setActiveTab('solicitudes');
                       }}
-                      className="text-[#1D63ED] hover:underline cursor-pointer"
+                      className="text-[#1464A5] hover:underline cursor-pointer"
                     >
                       Ver en solicitudes
                     </button>
                   </div>
-                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                  <div className="max-h-72 overflow-y-auto divide-y divide-[#E2E6EC]">
                     {searchResults.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-slate-500">
+                      <div className="p-4 text-center text-xs text-[#5B6573]">
                         No se encontraron expedientes para "{globalSearchQuery}".
                       </div>
                     ) : (
@@ -414,17 +811,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             setSelectedDossierId(d.id);
                             setShowSearchDropdown(false);
                           }}
-                          className="w-full px-4 py-2.5 text-left hover:bg-[#EFF6FF] transition-colors flex items-center justify-between gap-2 cursor-pointer"
+                          className="w-full px-4 py-2.5 text-left hover:bg-[#F7F8FA] transition-colors flex items-center justify-between gap-2 cursor-pointer"
                         >
                           <div className="min-w-0">
-                            <div className="text-xs font-bold text-slate-900 truncate">
+                            <div className="text-xs font-bold text-[#121212] truncate">
                               {d.personal.fullName}
                             </div>
-                            <div className="text-[11px] text-slate-500 font-mono truncate">
+                            <div className="text-[11px] text-[#5B6573] font-mono truncate">
                               {d.code} · {d.personal.documentType} {d.personal.documentNumber} · {d.business.businessName}
                             </div>
                           </div>
-                          <span className="text-xs font-bold text-[#1D63ED] font-mono shrink-0 tabular-nums">
+                          <span className="text-xs font-bold text-[#004481] font-mono shrink-0 tabular-nums">
                             S/ {d.terms.requestedAmount.toLocaleString('es-PE')}
                           </span>
                         </button>
@@ -437,35 +834,35 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           {/* Right Header Controls */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Respaldar / Exportar Dropdown */}
             <div ref={exportMenuRef} className="relative">
               <button
                 onClick={() => setShowExportMenu((v) => !v)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-white hover:bg-[#F7F8FA] text-[#121212] border border-[#CBD5E1] text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap"
               >
-                <Download className="w-3.5 h-3.5 text-[#1D63ED]" />
+                <Download className="w-3.5 h-3.5 text-[#004481]" />
                 <span className="hidden sm:inline">Respaldar / Exportar</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#6B7280]" />
               </button>
 
               {showExportMenu && (
-                <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl border border-slate-200 shadow-xl p-1.5 z-50 text-xs">
+                <div className="absolute right-0 mt-1.5 w-60 bg-white rounded-lg border border-[#E2E6EC] shadow-sm p-1.5 z-50 text-xs">
                   <button
                     onClick={() => {
                       setShowExportMenu(false);
                       setShowBackupModal(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-[#EFF6FF] text-slate-700 hover:text-[#1D63ED] font-semibold text-left cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-[#F7F8FA] text-[#121212] hover:text-[#004481] font-medium text-left cursor-pointer"
                   >
-                    <ShieldCheck className="w-4 h-4 text-[#1D63ED]" />
+                    <ShieldCheck className="w-4 h-4 text-[#004481]" />
                     <span>Copia de seguridad (JSON)</span>
                   </button>
                   <button
                     onClick={handleExportCSV}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold text-left cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-[#F7F8FA] text-[#121212] hover:text-[#028448] font-medium text-left cursor-pointer"
                   >
-                    <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                    <FileSpreadsheet className="w-4 h-4 text-[#028448]" />
                     <span>Exportar cartera (Excel/CSV)</span>
                   </button>
                   <button
@@ -473,20 +870,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       setShowExportMenu(false);
                       setActiveTab('reportes');
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 text-slate-700 font-semibold text-left cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-[#F7F8FA] text-[#121212] font-medium text-left cursor-pointer"
                   >
-                    <BarChart3 className="w-4 h-4 text-purple-600" />
+                    <BarChart3 className="w-4 h-4 text-[#5B6573]" />
                     <span>Centro de reportes</span>
                   </button>
-                  <div className="my-1 border-t border-slate-100" />
+                  <div className="my-1 border-t border-[#E2E6EC]" />
                   <button
                     onClick={() => {
                       setShowExportMenu(false);
                       setShowResetConfirm(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-amber-50 text-slate-600 hover:text-amber-700 font-semibold text-left cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-[#FFFBEB] text-[#5B6573] hover:text-[#B45309] font-medium text-left cursor-pointer"
                   >
-                    <RotateCcw className="w-4 h-4 text-amber-600" />
+                    <RotateCcw className="w-4 h-4 text-[#B45309]" />
                     <span>Restablecer datos demo</span>
                   </button>
                 </div>
@@ -498,20 +895,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <button
                 onClick={() => setShowNotifications((v) => !v)}
                 aria-label="Notificaciones y pendientes"
-                className="relative p-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                className="relative p-2 rounded-md bg-white hover:bg-[#F7F8FA] border border-[#CBD5E1] text-[#374151] hover:text-[#121212] transition-colors cursor-pointer"
               >
                 <Bell className="w-4 h-4" />
                 {pendingDocsAlerts.length > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center tabular-nums">
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded bg-[#C81E1E] text-white text-[10px] font-bold flex items-center justify-center tabular-nums">
                     {pendingDocsAlerts.length}
                   </span>
                 )}
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden z-50">
-                  <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-900">
+                <div className="absolute right-0 mt-1.5 w-80 bg-white rounded-lg border border-[#E2E6EC] shadow-sm overflow-hidden z-50">
+                  <div className="px-4 py-3 border-b border-[#E2E6EC] flex items-center justify-between bg-[#F7F8FA]">
+                    <span className="text-xs font-bold text-[#121212]">
                       Documentos pendientes ({pendingDocsAlerts.length})
                     </span>
                     <button
@@ -519,14 +916,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         setShowNotifications(false);
                         setActiveTab('inventario_documentos');
                       }}
-                      className="text-[11px] font-bold text-[#1D63ED] hover:underline cursor-pointer"
+                      className="text-[11px] font-semibold text-[#1464A5] hover:underline cursor-pointer"
                     >
                       Gestionar
                     </button>
                   </div>
-                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                  <div className="max-h-72 overflow-y-auto divide-y divide-[#E2E6EC]">
                     {pendingDocsAlerts.length === 0 ? (
-                      <div className="p-5 text-center text-xs text-slate-500">
+                      <div className="p-5 text-center text-xs text-[#5B6573]">
                         Todos los documentos de sustento se encuentran al día.
                       </div>
                     ) : (
@@ -537,14 +934,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                             setSelectedDossierId(item.dossierId);
                             setShowNotifications(false);
                           }}
-                          className="w-full px-4 py-2.5 text-left hover:bg-slate-50 transition-colors cursor-pointer"
+                          className="w-full px-4 py-2.5 text-left hover:bg-[#F7F8FA] transition-colors cursor-pointer"
                         >
                           <div className="flex items-center justify-between text-[11px]">
-                            <span className="font-mono font-bold text-[#1D63ED]">{item.code}</span>
-                            <span className="text-amber-600 font-semibold">{item.status}</span>
+                            <span className="font-mono font-bold text-[#004481]">{item.code}</span>
+                            <span className="text-[#B45309] font-semibold">{item.status}</span>
                           </div>
-                          <p className="text-xs font-semibold text-slate-800 truncate mt-0.5">{item.docName}</p>
-                          <p className="text-[11px] text-slate-500 truncate">{item.applicant}</p>
+                          <p className="text-xs font-semibold text-[#121212] truncate mt-0.5">{item.docName}</p>
+                          <p className="text-[11px] text-[#5B6573] truncate">{item.applicant}</p>
                         </button>
                       ))
                     )}
@@ -557,23 +954,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div ref={userMenuRef} className="relative">
               <button
                 onClick={() => setShowUserMenu((v) => !v)}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 transition-colors cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white hover:bg-[#F7F8FA] border border-[#CBD5E1] text-xs font-semibold text-[#121212] transition-colors cursor-pointer whitespace-nowrap"
               >
-                <div className="w-6 h-6 rounded-full bg-[#EFF6FF] text-[#1D63ED] flex items-center justify-center font-bold shrink-0">
+                <div className="w-6 h-6 rounded bg-[#F0F5FA] text-[#004481] flex items-center justify-center font-bold shrink-0">
                   <User className="w-3.5 h-3.5" />
                 </div>
                 <span className="hidden md:inline max-w-[120px] truncate">
                   {currentUser?.role === 'admin' ? 'Administrador' : currentUser?.name || 'Analista'}
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#6B7280]" />
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-50 text-xs">
-                  <div className="px-3 py-2 border-b border-slate-100 mb-1">
-                    <p className="font-bold text-slate-900 truncate">{currentUser?.name}</p>
-                    <p className="text-[11px] text-slate-500 truncate">{currentUser?.roleTitle}</p>
-                    <p className="text-[10px] text-slate-400 truncate mt-0.5">{currentUser?.agency}</p>
+                <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-lg border border-[#E2E6EC] shadow-sm p-2 z-50 text-xs">
+                  <div className="px-3 py-2 border-b border-[#E2E6EC] mb-1">
+                    <p className="font-bold text-[#121212] truncate">{currentUser?.name}</p>
+                    <p className="text-[11px] text-[#5B6573] truncate">{currentUser?.roleTitle}</p>
+                    <p className="text-[10px] text-[#6B7280] truncate mt-0.5">{currentUser?.agency}</p>
                   </div>
                   {currentUser?.role === 'admin' && (
                     <button
@@ -581,9 +978,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         setShowUserMenu(false);
                         setActiveTab('usuarios');
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700 font-semibold text-left cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-[#F7F8FA] text-[#121212] font-medium text-left cursor-pointer"
                     >
-                      <UserCog className="w-4 h-4 text-[#1D63ED]" />
+                      <UserCog className="w-4 h-4 text-[#004481]" />
                       <span>Administrar usuarios y roles</span>
                     </button>
                   )}
@@ -592,9 +989,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       setShowUserMenu(false);
                       setActiveTab('configuracion');
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700 font-semibold text-left cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-[#F7F8FA] text-[#121212] font-medium text-left cursor-pointer"
                   >
-                    <Settings className="w-4 h-4 text-slate-500" />
+                    <Settings className="w-4 h-4 text-[#5B6573]" />
                     <span>Parámetros y auditoría ({auditLogs.length})</span>
                   </button>
                   <button
@@ -602,7 +999,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       setShowUserMenu(false);
                       logout();
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-rose-50 text-rose-600 font-semibold text-left mt-1 cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-[#FEF2F2] text-[#C81E1E] font-medium text-left mt-1 cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Cerrar sesión</span>
@@ -614,23 +1011,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </header>
 
         {/* Main Content Canvas */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-white">
           {children}
         </main>
       </div>
 
       {/* MODAL: Copia de Seguridad y Respaldo (Exportar e Importar JSON) */}
       {showBackupModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
-            <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#072146]/40 p-4">
+          <div className="w-full max-w-lg bg-white rounded-lg border border-[#E2E6EC] overflow-hidden">
+            <div className="p-4 sm:p-5 border-b border-[#E2E6EC] flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#EFF6FF] text-[#1D63ED] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-md bg-[#F0F5FA] text-[#004481] flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Copias de Seguridad y Respaldo</h3>
-                  <p className="text-[11px] text-slate-500">Portabilidad y protección de expedientes en formato JSON</p>
+                  <h3 className="text-sm font-bold text-[#121212]">Copias de Seguridad y Respaldo</h3>
+                  <p className="text-[11px] text-[#5B6573]">Portabilidad y protección de expedientes en formato JSON</p>
                 </div>
               </div>
               <button
@@ -638,36 +1035,36 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   setShowBackupModal(false);
                   setBackupImportStatus(null);
                 }}
-                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer"
+                className="text-[#5B6573] hover:text-[#121212] p-1.5 rounded-md hover:bg-[#F7F8FA] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4 text-xs text-slate-700">
-              <div className="p-4 rounded-xl border border-blue-200/80 bg-[#EFF6FF]/60 flex items-center justify-between gap-4">
+            <div className="p-5 space-y-4 text-xs text-[#374151]">
+              <div className="p-4 rounded-md border border-[#E2E6EC] bg-[#F7F8FA] flex items-center justify-between gap-4">
                 <div>
-                  <span className="font-bold text-sm text-[#0B2545] block">Exportar respaldo completo</span>
-                  <span className="text-[11px] text-slate-600 block mt-0.5">
+                  <span className="font-bold text-sm text-[#121212] block">Exportar respaldo completo</span>
+                  <span className="text-[11px] text-[#5B6573] block mt-0.5">
                     Incluye {dossiers.length} expedientes, {financialRecords.length} análisis financieros y {auditLogs.length} registros de auditoría.
                   </span>
                 </div>
                 <button
                   onClick={exportBackupData}
-                  className="px-4 py-2.5 bg-[#1D63ED] hover:bg-[#1552CE] text-white font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors"
+                  className="px-4 py-2 bg-[#004481] hover:bg-[#072146] text-white font-semibold rounded-md flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Descargar JSON</span>
                 </button>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2.5">
-                <span className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                  <Upload className="w-4 h-4 text-[#1D63ED]" />
+              <div className="p-4 rounded-md border border-[#E2E6EC] bg-[#F7F8FA] space-y-2.5">
+                <span className="font-bold text-sm text-[#121212] flex items-center gap-1.5">
+                  <Upload className="w-4 h-4 text-[#004481]" />
                   <span>Restaurar desde archivo de respaldo</span>
                 </span>
-                <span className="text-[11px] text-slate-500 block">
-                  Seleccione un archivo <code className="font-mono bg-white px-1 py-0.5 rounded border border-slate-200">.json</code> exportado previamente desde EVALÚA PERÚ:
+                <span className="text-[11px] text-[#5B6573] block">
+                  Seleccione un archivo <code className="font-mono bg-white px-1 py-0.5 rounded border border-[#E2E6EC]">.json</code> exportado previamente desde EVALÚA PERÚ:
                 </span>
                 <input
                   type="file"
@@ -688,15 +1085,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       reader.readAsText(file);
                     }
                   }}
-                  className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#1D63ED] file:text-white hover:file:bg-[#1552CE] cursor-pointer"
+                  className="w-full text-xs text-[#5B6573] file:mr-3 file:py-2 file:px-3.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#004481] file:text-white hover:file:bg-[#072146] cursor-pointer"
                 />
 
                 {backupImportStatus && (
                   <div
-                    className={`p-3 rounded-xl text-xs font-semibold ${
+                    className={`p-3 rounded-md text-xs font-semibold ${
                       backupImportStatus.includes('Error')
-                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        ? 'bg-[#FEF2F2] text-[#C81E1E] border border-[#FECACA]'
+                        : 'bg-[#ECFDF5] text-[#028448] border border-[#A7F3D0]'
                     }`}
                   >
                     {backupImportStatus}
@@ -705,13 +1102,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
             </div>
 
-            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+            <div className="px-5 py-3.5 bg-[#F7F8FA] border-t border-[#E2E6EC] flex justify-end">
               <button
                 onClick={() => {
                   setShowBackupModal(false);
                   setBackupImportStatus(null);
                 }}
-                className="px-5 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 rounded-xl font-bold text-xs cursor-pointer transition-colors"
+                className="px-4 py-2 bg-white border border-[#CBD5E1] hover:bg-[#F7F8FA] text-[#121212] rounded-md font-semibold text-xs cursor-pointer transition-colors"
               >
                 Cerrar
               </button>
@@ -722,16 +1119,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Reset Confirmation Modal */}
       {showResetConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-4">
-            <h4 className="text-base font-bold text-[#0B2545]">¿Restablecer datos de demostración?</h4>
-            <p className="text-xs text-slate-600 leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#072146]/40 p-4">
+          <div className="w-full max-w-sm bg-white border border-[#E2E6EC] rounded-lg p-6 space-y-4">
+            <h4 className="text-base font-bold text-[#121212]">¿Restablecer datos de demostración?</h4>
+            <p className="text-xs text-[#5B6573] leading-relaxed">
               Esta acción recargará los expedientes ficticios de demostración en soles (S/) y limpiará las modificaciones locales actuales.
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setShowResetConfirm(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+                className="px-4 py-2 rounded-md border border-[#CBD5E1] bg-white text-xs font-semibold text-[#121212] hover:bg-[#F7F8FA] cursor-pointer"
               >
                 Cancelar
               </button>
@@ -740,7 +1137,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   resetAllData();
                   setShowResetConfirm(false);
                 }}
-                className="px-5 py-2 rounded-xl bg-[#1D63ED] hover:bg-[#1552CE] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                className="px-4 py-2 rounded-md bg-[#004481] hover:bg-[#072146] text-white text-xs font-semibold transition-colors cursor-pointer"
               >
                 Confirmar reinicio
               </button>

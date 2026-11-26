@@ -8,11 +8,8 @@ import {
   AlertCircle,
   CheckCircle2,
   ArrowLeft,
-  User,
-  Info,
   X,
-  FileText,
-  KeyRound
+  FileText
 } from 'lucide-react';
 import { Button } from './ui/Button';
 
@@ -22,7 +19,7 @@ interface LoginViewProps {
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAdmin = false }) => {
-  const { login, users } = useEvalua();
+  const { login } = useEvalua();
 
   // Inputs are clean and empty by default (no hardcoded passwords or personal email)
   const [email, setEmail] = useState('');
@@ -50,19 +47,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
     }
   };
 
-  const fillDemoAccount = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setErrorMessage(null);
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center relative font-sans selection:bg-evalua-yellow selection:text-slate-950">
+    <div className="min-h-screen bg-white flex flex-col justify-center relative font-sans selection:bg-[#004481] selection:text-white">
       {/* Top Bar for Back Navigation */}
       <div className="absolute top-4 left-4 z-30">
         <button
           onClick={onBackToLanding}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-evalua-navy shadow-xs border border-slate-200 text-xs font-bold transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white hover:bg-[#F7F8FA] text-[#072146] border border-[#CBD5E1] text-xs font-semibold transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Volver al portal principal</span>
@@ -71,47 +62,37 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
 
       {/* Split Screen Container */}
       <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 w-full">
-        {/* LEFT COLUMN: Dark Navy #00405F with Financial Capacity Gauge */}
-        <div className="hidden lg:flex lg:col-span-5 bg-evalua-navy text-white p-12 flex-col justify-between relative overflow-hidden">
-          {/* Ambient glow */}
-          <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute top-10 right-0 w-64 h-64 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
-
+        {/* LEFT COLUMN: Dark Institutional Navy #072146 */}
+        <div className="hidden lg:flex lg:col-span-5 bg-[#072146] text-white p-12 flex-col justify-between relative">
           {/* Top Brand Tag */}
-          <div className="relative z-10 pt-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-cyan-300">
-              <ShieldCheck className="w-4 h-4 text-evalua-yellow" />
-              <span>Prototipo de Gestión Crediticia · Huánuco 2026</span>
-            </div>
+          <div className="pt-4">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold text-slate-200">
+              <ShieldCheck className="w-4 h-4 text-white" />
+              <span>Plataforma de Gestión Crediticia · Huánuco 2026</span>
+            </span>
           </div>
 
-          {/* Center Graphic: Authentic Payment Capacity Gauge (Not a fake bureau score) */}
-          <div className="relative z-10 flex flex-col items-center justify-center my-auto py-8">
-            <div className="relative w-64 h-64 rounded-full border-8 border-slate-700/60 flex items-center justify-center bg-slate-950/60 shadow-2xl p-6 text-center">
-              {/* Outer indicator track */}
-              <div
-                className="absolute inset-0 rounded-full border-8 border-transparent border-t-emerald-400 border-r-emerald-400 pointer-events-none"
-                style={{ transform: 'rotate(45deg)' }}
-              />
-
+          {/* Center Graphic: Authentic Payment Capacity Indicator */}
+          <div className="flex flex-col items-center justify-center my-auto py-8">
+            <div className="w-64 h-64 rounded-full border-4 border-white/20 flex items-center justify-center bg-[#04152E] p-6 text-center">
               <div className="space-y-1.5 select-none">
-                <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-300">
                   Capacidad de Pago
                 </span>
-                <span className="block text-4xl font-extrabold text-white tracking-tight font-mono">
+                <span className="block text-4xl font-bold text-white tracking-tight font-mono tabular-nums">
                   78.4%
                 </span>
-                <span className="inline-block text-[10px] font-bold text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/40">
+                <span className="block text-xs font-semibold text-emerald-300 pt-1">
                   Excedente S/ 2,450 / mes
                 </span>
-                <span className="block text-[10px] text-slate-400 pt-1">
+                <span className="block text-[11px] text-slate-400">
                   Cobertura sobre cuota propuesta
                 </span>
               </div>
             </div>
 
             <div className="mt-8 text-center max-w-sm">
-              <h3 className="text-lg font-extrabold tracking-tight text-white mb-1.5">
+              <h3 className="text-lg font-bold tracking-tight text-white mb-1.5">
                 Organización objetiva de la información
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed">
@@ -133,54 +114,51 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Clean White Form with Yellow Pill CTA */}
+        {/* RIGHT COLUMN: Clean White Banking Form */}
         <div className="lg:col-span-7 flex items-center justify-center p-6 sm:p-12 lg:p-16 bg-white">
           <div className="w-full max-w-md space-y-6">
-            {/* Header: EVALÚA horizontal logo (40–48px) */}
             <div className="text-left">
               <img
                 src="/assets/evalua-logo.png"
                 alt="EVALÚA"
-                className="h-11 sm:h-12 w-auto object-contain mb-4"
+                className="h-10 sm:h-11 w-auto object-contain mb-5"
               />
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-evalua-navy tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#121212] tracking-tight">
                 Iniciar sesión
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+              <p className="text-xs sm:text-sm text-[#5B6573] mt-1">
                 Ingrese con sus credenciales institucionales de asesor o analista
               </p>
             </div>
 
-            {/* Error Message */}
             {errorMessage && (
-              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-500" />
+              <div className="p-3.5 rounded-md bg-[#FEF2F2] border border-[#FECACA] text-[#C81E1E] text-xs flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span className="font-semibold">{errorMessage}</span>
               </div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-[#374151] mb-1.5">
                   Correo o usuario institucional
                 </label>
-                <div className="relative rounded-xl">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@evalua.pe"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-evalua-blue focus:ring-2 focus:ring-evalua-blue/20 transition-all"
+                    placeholder="zonyukimordonezcaqui@gmail.com"
+                    className="w-full pl-10 pr-4 py-3 rounded-md border border-[#D1D5DB] bg-[#F7F8FA] text-sm font-medium text-[#121212] placeholder:text-[#6B7280] focus:outline-hidden focus:bg-white focus:border-[#004481] focus:ring-2 focus:ring-[#004481]/15 transition-colors"
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  <label className="block text-xs font-semibold text-[#374151]">
                     Contraseña
                   </label>
                   <button
@@ -190,98 +168,63 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
                       setShowForgotPasswordModal(true);
                       setForgotSubmitted(false);
                     }}
-                    className="text-xs font-semibold text-evalua-blue hover:text-evalua-navy hover:underline transition-colors cursor-pointer"
+                    className="text-xs font-semibold text-[#1464A5] hover:text-[#072146] hover:underline transition-colors cursor-pointer"
                   >
                     ¿Olvidó su contraseña?
                   </button>
                 </div>
-                <div className="relative rounded-xl">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Ingrese su contraseña"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-evalua-blue focus:ring-2 focus:ring-evalua-blue/20 transition-all"
+                    className="w-full pl-10 pr-4 py-3 rounded-md border border-[#D1D5DB] bg-[#F7F8FA] text-sm font-medium text-[#121212] placeholder:text-[#6B7280] focus:outline-hidden focus:bg-white focus:border-[#004481] focus:ring-2 focus:ring-[#004481]/15 transition-colors"
                   />
                 </div>
               </div>
 
-              {/* Consentimiento Ley 29733 */}
               <div className="space-y-2 pt-1">
-                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700 select-none">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#374151] select-none">
                   <input
                     type="checkbox"
                     checked={consentAccepted}
                     onChange={(e) => setConsentAccepted(e.target.checked)}
-                    className="rounded border-slate-300 text-evalua-blue focus:ring-evalua-blue w-4 h-4 mt-0.5"
+                    className="rounded border-[#D1D5DB] text-[#004481] focus:ring-[#004481] w-4 h-4 mt-0.5"
                   />
                   <span>
                     Acepto el tratamiento de datos y declaro cumplir la{' '}
                     <button
                       type="button"
                       onClick={() => setShowPrivacyModal(true)}
-                      className="text-evalua-blue font-bold hover:underline cursor-pointer"
+                      className="text-[#1464A5] font-semibold hover:underline cursor-pointer"
                     >
                       Ley N° 29733 de Protección de Datos Personales
                     </button>.
                   </span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-600 select-none">
+                <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-[#5B6573] select-none">
                   <input
                     type="checkbox"
                     checked={rememberSession}
                     onChange={(e) => setRememberSession(e.target.checked)}
-                    className="rounded border-slate-300 text-evalua-blue focus:ring-evalua-blue w-4 h-4"
+                    className="rounded border-[#D1D5DB] text-[#004481] focus:ring-[#004481] w-4 h-4"
                   />
                   <span>Recordar sesión en este equipo</span>
                 </label>
               </div>
 
-              {/* Botón Pill Amarillo (#FFD800) */}
               <button
                 type="submit"
-                className="w-full py-3.5 px-6 rounded-full bg-evalua-yellow hover:bg-[#ebd000] text-slate-950 font-extrabold text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer mt-2"
+                className="w-full py-3 px-6 rounded-md bg-[#004481] hover:bg-[#072146] text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer mt-2"
               >
                 <span>Ingresar a la plataforma</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
-
-            {/* Cuentas de evaluación para pruebas del evaluador / docente */}
-            <div className="pt-5 border-t border-slate-200 space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Cuentas Demo para Evaluación Académica:
-                </p>
-                <span className="text-[10px] text-slate-400">Clic para rellenar</span>
-              </div>
-
-              <div className="grid grid-cols-1 gap-2">
-                {users.map((u) => (
-                  <button
-                    key={u.id}
-                    type="button"
-                    onClick={() => fillDemoAccount(u.email, u.password || 'Evaluacion2026!Hco')}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-evalua-sky border border-slate-200 text-left transition-colors flex items-center justify-between text-xs cursor-pointer group"
-                  >
-                    <div>
-                      <span className="font-bold text-slate-800 group-hover:text-evalua-blue block">
-                        {u.name} ({u.roleTitle})
-                      </span>
-                      <span className="text-[11px] text-slate-500 font-mono">
-                        {u.email}
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-bold text-evalua-blue group-hover:underline">
-                      Usar cuenta →
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>

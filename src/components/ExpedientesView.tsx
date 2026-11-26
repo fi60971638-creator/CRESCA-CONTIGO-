@@ -51,32 +51,32 @@ export const ExpedientesView: React.FC = () => {
   const getStatusBadge = (status: ApplicationStatus) => {
     switch (status) {
       case 'registrada':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-[#0284C7] border border-sky-200">Registrada</span>;
+        return <span className="px-2.5 py-1 rounded text-[11px] font-semibold bg-[#F7F8FA] text-[#374151] border border-[#E2E6EC]">Registrada</span>;
       case 'en_evaluacion':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#EFF6FF] text-[#1D63ED] border border-blue-200">En evaluación</span>;
+        return <span className="px-2.5 py-1 rounded text-[11px] font-semibold bg-[#F0F5FA] text-[#004481] border border-[#B8D0E6]">En evaluación</span>;
       case 'documentacion_pendiente':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Doc. pendiente</span>;
+        return <span className="px-2.5 py-1 rounded text-[11px] font-semibold bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">Doc. pendiente</span>;
       case 'en_verificacion':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">En verificación</span>;
+        return <span className="px-2.5 py-1 rounded text-[11px] font-semibold bg-[#F7F8FA] text-[#072146] border border-[#CBD5E1]">En verificación</span>;
       case 'finalizada':
-        return <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Finalizada</span>;
+        return <span className="px-2.5 py-1 rounded text-[11px] font-semibold bg-[#ECFDF5] text-[#028448] border border-[#A7F3D0]">Finalizada</span>;
     }
   };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white rounded-lg border border-[#E2E6EC] p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#EFF6FF] text-[#1D63ED] flex items-center justify-center">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-md bg-[#F7F8FA] border border-[#E2E6EC] text-[#004481] flex items-center justify-center shrink-0">
               <FolderKanban className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-bold text-[#121212] tracking-tight">
                 Gestión de Expedientes Digitales
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-[#5B6573]">
                 Centraliza la información personal, comercial, estados financieros y documentos por solicitante
               </p>
             </div>
@@ -84,23 +84,23 @@ export const ExpedientesView: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/70">
+          <div className="inline-flex p-1 bg-[#F7F8FA] rounded-md border border-[#E2E6EC]">
             <button
               onClick={() => setSubMode('digitales')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded text-xs font-semibold transition-colors cursor-pointer ${
                 subMode === 'digitales'
-                  ? 'bg-white text-[#1D63ED] shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white text-[#004481] border border-[#E2E6EC]'
+                  : 'text-[#5B6573] hover:text-[#121212]'
               }`}
             >
               Expedientes de Crédito ({dossiers.length})
             </button>
             <button
               onClick={() => setSubMode('financiero')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded text-xs font-semibold transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
                 subMode === 'financiero'
-                  ? 'bg-white text-[#1D63ED] shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white text-[#004481] border border-[#E2E6EC]'
+                  : 'text-[#5B6573] hover:text-[#121212]'
               }`}
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -110,10 +110,10 @@ export const ExpedientesView: React.FC = () => {
 
           <button
             onClick={() => setIsNewDossierModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-[#1D63ED] hover:bg-[#1552CE] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 rounded-md bg-[#004481] hover:bg-[#072146] text-white text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Nuevo expediente</span>
+            <span>+ Nuevo expediente</span>
           </button>
         </div>
       </div>
@@ -123,15 +123,15 @@ export const ExpedientesView: React.FC = () => {
       ) : (
         <div className="space-y-5">
           {/* Search and Filter Bar */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="bg-white rounded-lg border border-[#E2E6EC] p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={globalSearchQuery}
                 onChange={(e) => setGlobalSearchQuery(e.target.value)}
                 placeholder="Buscar por DNI, RUC, nombre, negocio o código..."
-                className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#1D63ED]"
+                className="w-full pl-10 pr-4 py-2 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-xs text-[#121212] placeholder:text-[#6B7280] focus:outline-none focus:bg-white focus:border-[#004481]"
               />
             </div>
 
@@ -147,10 +147,10 @@ export const ExpedientesView: React.FC = () => {
                 <button
                   key={st.id}
                   onClick={() => setStatusFilter(st.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
                     statusFilter === st.id
-                      ? 'bg-[#1D63ED] text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-[#004481] text-white'
+                      : 'bg-white text-[#374151] border border-[#CBD5E1] hover:bg-[#F7F8FA]'
                   }`}
                 >
                   {st.label}
@@ -162,7 +162,7 @@ export const ExpedientesView: React.FC = () => {
           {/* Individual Dossier Cards Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {filteredDossiers.length === 0 ? (
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-10 text-center text-xs text-slate-500">
+              <div className="lg:col-span-2 bg-white rounded-lg border border-[#E2E6EC] p-10 text-center text-xs text-[#5B6573]">
                 No se encontraron expedientes digitales con los criterios seleccionados.
               </div>
             ) : (
@@ -174,20 +174,20 @@ export const ExpedientesView: React.FC = () => {
                 return (
                   <div
                     key={d.id}
-                    className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all p-5 flex flex-col justify-between gap-4"
+                    className="bg-white rounded-lg border border-[#E2E6EC] hover:border-[#B8D0E6] transition-colors p-5 flex flex-col justify-between gap-4"
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
+                      <div className="flex items-start justify-between gap-3 pb-3 border-b border-[#E2E6EC]">
                         <div>
                           <div className="flex items-center gap-2 text-xs">
-                            <span className="font-mono font-bold text-[#1D63ED]">{d.code}</span>
-                            <span className="text-slate-300">·</span>
-                            <span className="text-slate-500 font-mono">{d.createdAt}</span>
+                            <span className="font-mono font-bold text-[#004481]">{d.code}</span>
+                            <span className="text-[#CBD5E1]">·</span>
+                            <span className="text-[#5B6573] font-mono">{d.createdAt}</span>
                           </div>
-                          <h3 className="text-base font-extrabold text-[#0B2545] mt-1">
+                          <h3 className="text-base font-bold text-[#121212] mt-1">
                             {d.personal.fullName}
                           </h3>
-                          <p className="text-xs text-slate-500 mt-0.5">
+                          <p className="text-xs text-[#5B6573] mt-0.5">
                             {d.personal.documentType} {d.personal.documentNumber} · {d.business.businessName} ({d.business.sector})
                           </p>
                         </div>
@@ -195,35 +195,35 @@ export const ExpedientesView: React.FC = () => {
                       </div>
 
                       {/* Financial Snapshot */}
-                      <div className="grid grid-cols-3 gap-3 py-3.5 border-b border-slate-100 text-xs">
+                      <div className="grid grid-cols-3 gap-3 py-3.5 border-b border-[#E2E6EC] text-xs">
                         <div>
-                          <span className="text-[11px] text-slate-500 block">Monto solicitado</span>
-                          <strong className="font-mono text-sm font-bold text-[#0B2545] tabular-nums">
+                          <span className="text-[11px] text-[#5B6573] block">Monto solicitado</span>
+                          <strong className="font-mono text-sm font-bold text-[#121212] tabular-nums">
                             S/ {d.terms.requestedAmount.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                           </strong>
                         </div>
                         <div>
-                          <span className="text-[11px] text-slate-500 block">Excedente neto</span>
+                          <span className="text-[11px] text-[#5B6573] block">Excedente neto</span>
                           <strong
                             className={`font-mono text-sm font-bold tabular-nums ${
                               d.paymentCapacity.remainingSurplusAfterProposedInstallment >= 0
-                                ? 'text-[#16A34A]'
-                                : 'text-rose-600'
+                                ? 'text-[#028448]'
+                                : 'text-[#C81E1E]'
                             }`}
                           >
                             S/ {d.paymentCapacity.remainingSurplusAfterProposedInstallment.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                           </strong>
                         </div>
                         <div>
-                          <span className="text-[11px] text-slate-500 block">Documentos ({verifiedDocs}/{totalDocs})</span>
+                          <span className="text-[11px] text-[#5B6573] block">Documentos ({verifiedDocs}/{totalDocs})</span>
                           <div className="flex items-center gap-2 mt-1">
-                            <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                            <div className="flex-1 h-2 rounded bg-[#E2E6EC] overflow-hidden">
                               <div
-                                className="h-full bg-[#16A34A] rounded-full"
+                                className="h-full bg-[#028448] rounded"
                                 style={{ width: `${docPct}%` }}
                               />
                             </div>
-                            <span className="font-mono font-bold text-slate-700 text-[11px] tabular-nums">
+                            <span className="font-mono font-bold text-[#121212] text-[11px] tabular-nums">
                               {docPct}%
                             </span>
                           </div>
@@ -232,7 +232,7 @@ export const ExpedientesView: React.FC = () => {
 
                       {/* Direct Jump Links to 9 Independent Modules */}
                       <div className="pt-3">
-                        <span className="text-[11px] font-bold text-slate-500 block mb-2">
+                        <span className="text-[11px] font-semibold text-[#1464A5] block mb-2">
                           Acceso directo a formularios del expediente:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -255,7 +255,7 @@ export const ExpedientesView: React.FC = () => {
                                   setSelectedDossierId(d.id);
                                   setActiveTab(mod.id);
                                 }}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-[#EFF6FF] text-slate-700 hover:text-[#1D63ED] border border-slate-200/80 text-[11px] font-semibold transition-colors cursor-pointer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#F7F8FA] hover:bg-[#F0F5FA] text-[#374151] hover:text-[#004481] border border-[#E2E6EC] hover:border-[#B8D0E6] text-[11px] font-semibold transition-colors cursor-pointer"
                               >
                                 <MIcon className="w-3 h-3" />
                                 <span>{mod.label}</span>
@@ -267,9 +267,9 @@ export const ExpedientesView: React.FC = () => {
                     </div>
 
                     {/* Card Footer Actions */}
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <span className="text-[11px] text-slate-500 truncate">
-                        Asesor: <strong className="text-slate-700">{d.assignedAnalystName}</strong>
+                    <div className="pt-3 border-t border-[#E2E6EC] flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-[#5B6573] truncate">
+                        Asesor: <strong className="text-[#121212]">{d.assignedAnalystName}</strong>
                       </span>
 
                       <div className="flex items-center gap-2 shrink-0">
@@ -278,14 +278,14 @@ export const ExpedientesView: React.FC = () => {
                             setSelectedDossierId(d.id);
                             setIsPrintModalOpen(true);
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[#CBD5E1] bg-white hover:bg-[#F7F8FA] text-[#121212] text-xs font-semibold transition-colors cursor-pointer"
                         >
-                          <Printer className="w-3.5 h-3.5 text-slate-500" />
+                          <Printer className="w-3.5 h-3.5 text-[#5B6573]" />
                           <span>PDF</span>
                         </button>
                         <button
                           onClick={() => setSelectedDossierId(d.id)}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1D63ED] hover:bg-[#1552CE] text-white text-xs font-bold transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#004481] hover:bg-[#072146] text-white text-xs font-semibold transition-colors cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Abrir ficha 360°</span>

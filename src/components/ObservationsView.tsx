@@ -92,16 +92,16 @@ export const ObservationsView: React.FC = () => {
   return (
     <div className="space-y-6 max-w-[1440px] mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-lg border border-[#E2E6EC]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-md bg-[#F7F8FA] border border-[#E2E6EC] text-[#004481] flex items-center justify-center shrink-0">
             <MessageSquareText className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#121212] tracking-tight">
               Observaciones, Notas Técnicas y Conclusiones
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-[#5B6573] mt-0.5">
               Bitácora de inspecciones de campo, hallazgos financieros y comentarios del asesor
             </p>
           </div>
@@ -109,27 +109,27 @@ export const ObservationsView: React.FC = () => {
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#1D63ED] hover:bg-[#1552CC] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-2 self-start sm:self-auto cursor-pointer whitespace-nowrap"
+          className="px-4 py-2.5 rounded-md bg-[#004481] hover:bg-[#072146] text-white text-xs font-semibold transition-colors flex items-center gap-2 self-start sm:self-auto cursor-pointer whitespace-nowrap"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Registrar observación</span>
+          <span>+ Registrar observación</span>
         </button>
       </div>
 
       {/* Filter and Search */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4">
+      <div className="bg-white border border-[#E2E6EC] rounded-lg p-5 space-y-4">
         <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
           <div className="w-full md:w-96 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar en el contenido, autor o titular..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#1D63ED] focus:ring-2 focus:ring-blue-500/15"
+              className="w-full pl-10 pr-4 py-2.5 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-xs text-[#121212] placeholder:text-[#6B7280] outline-none focus:bg-white focus:border-[#004481]"
             />
           </div>
-          <span className="text-xs font-semibold text-slate-500">
+          <span className="text-xs font-semibold text-[#5B6573]">
             {filteredObservations.length} registros mostrados
           </span>
         </div>
@@ -137,33 +137,33 @@ export const ObservationsView: React.FC = () => {
         {/* Observations List */}
         <div className="space-y-3">
           {filteredObservations.length === 0 ? (
-            <div className="p-8 text-center bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500">
+            <div className="p-8 text-center bg-[#F7F8FA] rounded-md border border-[#E2E6EC] text-xs text-[#5B6573]">
               No se encontraron observaciones registradas.
             </div>
           ) : (
             filteredObservations.map((obs) => (
               <div
                 key={obs.id}
-                className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:border-blue-200 hover:bg-white transition-all space-y-2.5"
+                className="p-4 rounded-lg bg-[#F7F8FA] border border-[#E2E6EC] hover:bg-white hover:border-[#B8D0E6] transition-colors space-y-2.5"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/70 pb-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E6EC] pb-2.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1D63ED] border border-blue-200/70">
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#F0F5FA] text-[#004481] border border-[#B8D0E6]">
                       {obs.type}
                     </span>
-                    <span className="font-bold text-xs text-[#0B2545]">
+                    <span className="font-bold text-xs text-[#121212]">
                       {obs.authorName}
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[#5B6573]">
                       ({obs.authorRole})
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <div className="flex items-center gap-3 text-xs text-[#5B6573]">
                     <span className="font-mono text-[11px]">{obs.date}</span>
                     <button
                       onClick={() => setSelectedDossierId(obs.dossierId)}
-                      className="text-[#1D63ED] hover:underline font-mono font-bold flex items-center gap-1 cursor-pointer"
+                      className="text-[#004481] hover:underline font-mono font-bold flex items-center gap-1 cursor-pointer"
                     >
                       <FolderOpen className="w-3.5 h-3.5" />
                       <span>{obs.dossierCode}</span>
@@ -171,17 +171,17 @@ export const ObservationsView: React.FC = () => {
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-700 leading-relaxed">{obs.content}</p>
+                <p className="text-xs text-[#121212] leading-relaxed">{obs.content}</p>
 
                 {obs.nextAction && (
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 border border-purple-200/70 text-purple-700 text-xs font-semibold">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F0F5FA] border border-[#B8D0E6] text-[#1464A5] text-xs font-semibold">
                     <Clock className="w-3.5 h-3.5" />
                     <span>Próxima acción: {obs.nextAction}</span>
                   </div>
                 )}
 
-                <div className="text-[11px] text-slate-500 pt-1 flex items-center justify-between">
-                  <span>Titular: <strong className="text-[#0B2545]">{obs.applicantName}</strong></span>
+                <div className="text-[11px] text-[#5B6573] pt-1 flex items-center justify-between">
+                  <span>Titular: <strong className="text-[#121212]">{obs.applicantName}</strong></span>
                   <span>{obs.agency}</span>
                 </div>
               </div>
@@ -192,22 +192,22 @@ export const ObservationsView: React.FC = () => {
 
       {/* Modal Add Observation */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-extrabold text-[#0B2545]">Registrar Nueva Observación</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#072146]/40 p-4">
+          <div className="w-full max-w-md bg-white border border-[#E2E6EC] rounded-lg p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E6EC]">
+              <h3 className="text-base font-bold text-[#121212]">Registrar Nueva Observación</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-[#5B6573] hover:text-[#121212] cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateObservation} className="space-y-3 text-xs">
+            <form onSubmit={handleCreateObservation} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Expediente *</label>
+                <label className="block font-semibold text-[#374151] mb-1.5">Expediente *</label>
                 <select
                   value={selectedDossierId}
                   onChange={(e) => setLocalSelectedDossierId(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:border-[#1D63ED]"
+                  className="w-full p-2.5 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-[#121212] outline-none focus:bg-white focus:border-[#004481]"
                 >
                   {dossiers.map((d) => (
                     <option key={d.id} value={d.id}>
@@ -218,11 +218,11 @@ export const ObservationsView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Tipo de Observación</label>
+                <label className="block font-semibold text-[#374151] mb-1.5">Tipo de Observación</label>
                 <select
                   value={obsType}
                   onChange={(e) => setObsType(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:border-[#1D63ED]"
+                  className="w-full p-2.5 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-[#121212] outline-none focus:bg-white focus:border-[#004481]"
                 >
                   <option value="campo_visita">Visita de Campo</option>
                   <option value="financiera">Evaluación Financiera</option>
@@ -233,25 +233,25 @@ export const ObservationsView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Contenido Técnico *</label>
+                <label className="block font-semibold text-[#374151] mb-1.5">Contenido Técnico *</label>
                 <textarea
                   rows={3}
                   required
                   value={obsContent}
                   onChange={(e) => setObsContent(e.target.value)}
                   placeholder="Detalle la información observada..."
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-[#1D63ED]"
+                  className="w-full p-3 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-[#121212] outline-none focus:bg-white focus:border-[#004481]"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Próxima Acción (Opcional)</label>
+                <label className="block font-semibold text-[#374151] mb-1.5">Próxima Acción (Opcional)</label>
                 <input
                   type="text"
                   value={nextAction}
                   onChange={(e) => setNextAction(e.target.value)}
                   placeholder="Ej. Cotejo de recibos o contrato"
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-[#1D63ED]"
+                  className="w-full p-2.5 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-[#121212] outline-none focus:bg-white focus:border-[#004481]"
                 />
               </div>
 
@@ -259,13 +259,13 @@ export const ObservationsView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-slate-600 font-semibold hover:bg-slate-100 rounded-xl cursor-pointer"
+                  className="px-4 py-2 text-[#121212] font-semibold bg-white border border-[#CBD5E1] hover:bg-[#F7F8FA] rounded-md cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#1D63ED] hover:bg-[#1552CC] text-white font-bold rounded-xl cursor-pointer"
+                  className="px-5 py-2 bg-[#004481] hover:bg-[#072146] text-white font-semibold rounded-md cursor-pointer"
                 >
                   Guardar
                 </button>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence, motion, MotionConfig } from 'motion/react';
 import { EvaluaProvider, useEvalua } from './context/EvaluaContext';
 import { LandingView } from './components/LandingView';
 import { LoginView } from './components/LoginView';
@@ -63,35 +64,45 @@ const EvaluaApp: React.FC = () => {
 
   return (
     <Layout>
-      {/* Panel principal & Expedientes */}
-      {(activeTab === 'panel_principal' || activeTab === 'inicio') && <DashboardView />}
-      {activeTab === 'expedientes' && <ExpedientesView />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {/* Panel principal & Expedientes */}
+          {(activeTab === 'panel_principal' || activeTab === 'inicio') && <DashboardView />}
+          {activeTab === 'expedientes' && <ExpedientesView />}
 
-      {/* Primary Financial Analysis Module */}
-      {(activeTab === 'registro_financiero' || activeTab === 'analisis_financiero') && (
-        <FinancialAnalysisModule />
-      )}
+          {/* Primary Financial Analysis Module */}
+          {(activeTab === 'registro_financiero' || activeTab === 'analisis_financiero') && (
+            <FinancialAnalysisModule />
+          )}
 
-      {/* Tab Routes - Solicitud & 8 Independent Credit Modules */}
-      {activeTab === 'solicitudes' && <ApplicationsView />}
-      {activeTab === 'solicitante' && <CreditModuleIndependentView moduleId="solicitante" />}
-      {activeTab === 'negocio' && <CreditModuleIndependentView moduleId="negocio" />}
-      {activeTab === 'credito' && <CreditModuleIndependentView moduleId="credito" />}
-      {activeTab === 'ingresos_gastos' && <CreditModuleIndependentView moduleId="ingresos_gastos" />}
-      {activeTab === 'balance' && <CreditModuleIndependentView moduleId="balance" />}
-      {activeTab === 'capacidad' && <CreditModuleIndependentView moduleId="capacidad" />}
-      {activeTab === 'inventario_documentos' && <CreditModuleIndependentView moduleId="inventario_documentos" />}
-      {activeTab === 'conclusion' && <CreditModuleIndependentView moduleId="conclusion" />}
+          {/* Tab Routes - Solicitud & 8 Independent Credit Modules */}
+          {activeTab === 'solicitudes' && <ApplicationsView />}
+          {activeTab === 'solicitante' && <CreditModuleIndependentView moduleId="solicitante" />}
+          {activeTab === 'negocio' && <CreditModuleIndependentView moduleId="negocio" />}
+          {activeTab === 'credito' && <CreditModuleIndependentView moduleId="credito" />}
+          {activeTab === 'ingresos_gastos' && <CreditModuleIndependentView moduleId="ingresos_gastos" />}
+          {activeTab === 'balance' && <CreditModuleIndependentView moduleId="balance" />}
+          {activeTab === 'capacidad' && <CreditModuleIndependentView moduleId="capacidad" />}
+          {activeTab === 'inventario_documentos' && <CreditModuleIndependentView moduleId="inventario_documentos" />}
+          {activeTab === 'conclusion' && <CreditModuleIndependentView moduleId="conclusion" />}
 
-      {/* Referencias, Observaciones, Seguimiento, Reportes y Administración */}
-      {activeTab === 'referencias' && <ReferencesView />}
-      {activeTab === 'observaciones' && <ObservationsView />}
-      {activeTab === 'seguimiento' && <FollowUpView />}
-      {activeTab === 'solicitantes' && <ApplicantsView />}
-      {activeTab === 'documentos' && <DocumentsView />}
-      {activeTab === 'reportes' && <ReportsView />}
-      {activeTab === 'usuarios' && <UsersView />}
-      {activeTab === 'configuracion' && <ConfigView />}
+          {/* Referencias, Observaciones, Seguimiento, Reportes y Administración */}
+          {activeTab === 'referencias' && <ReferencesView />}
+          {activeTab === 'observaciones' && <ObservationsView />}
+          {activeTab === 'seguimiento' && <FollowUpView />}
+          {activeTab === 'solicitantes' && <ApplicantsView />}
+          {activeTab === 'documentos' && <DocumentsView />}
+          {activeTab === 'reportes' && <ReportsView />}
+          {activeTab === 'usuarios' && <UsersView />}
+          {activeTab === 'configuracion' && <ConfigView />}
+        </motion.div>
+      </AnimatePresence>
 
       {/* 8-Step Wizard Modal for New Credit Application Dossier */}
       <NewDossierWizardModal
@@ -119,8 +130,10 @@ const EvaluaApp: React.FC = () => {
 
 export default function App() {
   return (
-    <EvaluaProvider>
-      <EvaluaApp />
-    </EvaluaProvider>
+    <MotionConfig reducedMotion="user">
+      <EvaluaProvider>
+        <EvaluaApp />
+      </EvaluaProvider>
+    </MotionConfig>
   );
 }

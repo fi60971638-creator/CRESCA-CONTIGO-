@@ -10,9 +10,9 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 export const Button: React.FC<ButtonProps> = ({
   children,
-  variant = 'primary',
+  variant = 'blue',
   size = 'md',
-  pill = true,
+  pill = false,
   leftIcon,
   rightIcon,
   className = '',
@@ -20,31 +20,31 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseClasses =
-    'inline-flex items-center justify-center font-bold tracking-tight transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
+    'inline-flex items-center justify-center font-semibold tracking-tight transition-colors duration-150 focus:outline-hidden focus:ring-2 focus:ring-offset-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap';
 
-  const shapeClass = pill ? 'rounded-full' : 'rounded-xl';
+  const shapeClass = pill ? 'rounded-md' : 'rounded-md';
 
   const sizeClasses = {
-    sm: 'text-xs px-3.5 py-1.5 gap-1.5 shadow-xs',
-    md: 'text-sm px-5 py-2.5 gap-2 shadow-xs',
-    lg: 'text-base px-7 py-3.5 gap-2.5 shadow-sm',
+    sm: 'text-xs px-3 py-1.5 gap-1.5',
+    md: 'text-xs sm:text-sm px-4 py-2 gap-2',
+    lg: 'text-sm px-5 py-2.5 gap-2',
   };
 
   const variantClasses = {
     primary:
-      'bg-evalua-yellow text-slate-950 hover:bg-[#ebd000] focus:ring-evalua-yellow shadow-sm hover:shadow',
+      'bg-[#004481] text-white hover:bg-[#072146] focus:ring-[#004481]',
     secondary:
-      'border-2 border-white text-white hover:bg-white hover:text-evalua-navy focus:ring-white',
+      'border border-[#CBD5E1] text-[#121212] bg-white hover:bg-[#F7F8FA] focus:ring-[#004481]',
     navy:
-      'bg-evalua-navy text-white hover:bg-[#00344d] focus:ring-evalua-navy text-white',
+      'bg-[#072146] text-white hover:bg-[#04152E] focus:ring-[#072146]',
     blue:
-      'bg-evalua-blue text-white hover:bg-[#08386a] focus:ring-evalua-blue text-white',
+      'bg-[#004481] text-white hover:bg-[#072146] focus:ring-[#004481]',
     outline:
-      'border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 focus:ring-evalua-blue',
+      'border border-[#CBD5E1] text-[#121212] bg-white hover:bg-[#F7F8FA] focus:ring-[#004481]',
     ghost:
-      'text-slate-700 hover:text-evalua-blue hover:bg-evalua-sky focus:ring-evalua-blue',
+      'text-[#1464A5] hover:text-[#072146] hover:bg-[#F0F5FA] focus:ring-[#004481]',
     danger:
-      'bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500',
+      'bg-[#C81E1E] text-white hover:bg-[#991B1B] focus:ring-[#C81E1E]',
   };
 
   return (

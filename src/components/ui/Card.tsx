@@ -14,12 +14,12 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white rounded-2xl border border-slate-200/90 ${
-        padded ? 'p-6' : ''
+      className={`bg-white rounded-lg border border-[#E2E6EC] ${
+        padded ? 'p-5 sm:p-6' : ''
       } ${
         hoverEffect
-          ? 'transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-evalua-blue/30'
-          : 'shadow-xs'
+          ? 'transition-colors duration-150 hover:border-[#004481]/40'
+          : ''
       } ${className}`}
       {...props}
     >

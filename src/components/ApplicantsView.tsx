@@ -39,31 +39,31 @@ export const ApplicantsView: React.FC = () => {
   const getStatusBadge = (status: ApplicationStatus) => {
     switch (status) {
       case 'registrada':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Registrada</span>;
+        return <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#F7F8FA] text-[#374151] border border-[#E2E6EC]">Registrada</span>;
       case 'en_evaluacion':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1D63ED] border border-blue-200">En evaluación</span>;
+        return <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#F0F5FA] text-[#004481] border border-[#B8D0E6]">En evaluación</span>;
       case 'documentacion_pendiente':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Doc. pendiente</span>;
+        return <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">Doc. pendiente</span>;
       case 'en_verificacion':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">En verificación</span>;
+        return <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#F7F8FA] text-[#072146] border border-[#CBD5E1]">En verificación</span>;
       case 'finalizada':
-        return <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Finalizada</span>;
+        return <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-[#ECFDF5] text-[#028448] border border-[#A7F3D0]">Finalizada</span>;
     }
   };
 
   return (
     <div className="space-y-6 max-w-[1440px] mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-lg border border-[#E2E6EC]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200/70 text-[#1D63ED] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-md bg-[#F7F8FA] border border-[#E2E6EC] text-[#004481] flex items-center justify-center shrink-0">
             <Users className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B2545] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#121212] tracking-tight">
               Buscador y Directorio de Solicitantes
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-[#5B6573] mt-0.5">
               Búsqueda por DNI, RUC, nombre, número de expediente, teléfono o estado
             </p>
           </div>
@@ -71,24 +71,24 @@ export const ApplicantsView: React.FC = () => {
 
         <button
           onClick={() => setIsNewDossierModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#1D63ED] hover:bg-[#1552CC] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-2 self-start sm:self-auto cursor-pointer whitespace-nowrap"
+          className="px-4 py-2.5 rounded-md bg-[#004481] hover:bg-[#072146] text-white text-xs font-semibold transition-colors flex items-center gap-2 self-start sm:self-auto cursor-pointer whitespace-nowrap"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Nueva solicitud</span>
+          <span>+ Nueva solicitud</span>
         </button>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs space-y-4">
+      <div className="bg-white border border-[#E2E6EC] rounded-lg p-5 space-y-4">
         <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
           <div className="w-full md:w-96 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={globalSearchQuery}
               onChange={(e) => setGlobalSearchQuery(e.target.value)}
               placeholder="Buscar por DNI, Nombre, N° Solicitud, Teléfono..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#1D63ED]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-md bg-[#F7F8FA] border border-[#D1D5DB] text-xs text-[#121212] placeholder:text-[#6B7280] outline-none focus:bg-white focus:border-[#004481]"
             />
           </div>
 
@@ -104,10 +104,10 @@ export const ApplicantsView: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setStatusFilter(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
                   statusFilter === tab.id
-                    ? 'bg-[#1D63ED] text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                    ? 'bg-[#004481] text-white'
+                    : 'bg-white text-[#374151] hover:bg-[#F7F8FA] border border-[#CBD5E1]'
                 }`}
               >
                 {tab.label}
@@ -120,7 +120,7 @@ export const ApplicantsView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/80 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+              <tr className="border-b border-[#E2E6EC] bg-[#F7F8FA] text-[#5B6573] font-semibold uppercase text-[10px] tracking-wider">
                 <th className="py-3 pl-3">N° Solicitud</th>
                 <th className="py-3">Solicitante</th>
                 <th className="py-3">DNI / Documento</th>
@@ -131,10 +131,10 @@ export const ApplicantsView: React.FC = () => {
                 <th className="py-3 pr-3 text-right">Acción</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#E2E6EC]">
               {filteredDossiers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-400">
+                  <td colSpan={8} className="py-8 text-center text-[#5B6573]">
                     No se encontraron solicitantes que coincidan con los criterios de búsqueda.
                   </td>
                 </tr>
@@ -143,30 +143,30 @@ export const ApplicantsView: React.FC = () => {
                   <tr
                     key={d.id}
                     onClick={() => setSelectedDossierId(d.id)}
-                    className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
+                    className="hover:bg-[#F7F8FA] transition-colors group cursor-pointer"
                   >
-                    <td className="py-3.5 pl-3 font-mono font-bold text-[#1D63ED]">
+                    <td className="py-3.5 pl-3 font-mono font-bold text-[#004481]">
                       {d.code}
                     </td>
                     <td className="py-3.5">
-                      <div className="font-bold text-[#0B2545] group-hover:text-[#1D63ED] transition-colors">
+                      <div className="font-bold text-[#121212] group-hover:text-[#004481] transition-colors">
                         {d.personal.fullName}
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div className="text-[11px] text-[#5B6573]">
                         {d.personal.district}, {d.personal.department}
                       </div>
                     </td>
-                    <td className="py-3.5 font-mono text-slate-700">
+                    <td className="py-3.5 font-mono text-[#374151]">
                       {d.personal.documentNumber}
                     </td>
-                    <td className="py-3.5 font-mono text-slate-700">
+                    <td className="py-3.5 font-mono text-[#374151]">
                       {d.personal.phone}
                     </td>
-                    <td className="py-3.5 text-slate-700">
-                      <div className="font-semibold text-[#0B2545]">{d.business.businessName}</div>
-                      <div className="text-[11px] text-slate-500">{d.business.activityType}</div>
+                    <td className="py-3.5 text-[#374151]">
+                      <div className="font-semibold text-[#121212]">{d.business.businessName}</div>
+                      <div className="text-[11px] text-[#5B6573]">{d.business.activityType}</div>
                     </td>
-                    <td className="py-3.5 text-right font-bold text-[#0B2545] font-mono tabular-nums">
+                    <td className="py-3.5 text-right font-bold text-[#121212] font-mono tabular-nums">
                       S/ {d.terms.requestedAmount.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="py-3.5 text-center">
@@ -178,7 +178,7 @@ export const ApplicantsView: React.FC = () => {
                           e.stopPropagation();
                           setSelectedDossierId(d.id);
                         }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-[#1D63ED] hover:bg-[#1D63ED] hover:text-white border border-blue-200/70 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#F0F5FA] text-[#004481] hover:bg-[#004481] hover:text-white border border-[#B8D0E6] rounded-md text-xs font-semibold transition-colors cursor-pointer"
                       >
                         <FolderOpen className="w-3.5 h-3.5" />
                         <span>Abrir expediente</span>
