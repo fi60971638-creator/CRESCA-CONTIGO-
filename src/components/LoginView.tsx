@@ -9,7 +9,11 @@ import {
   CheckCircle2,
   ArrowLeft,
   X,
-  FileText
+  FileText,
+  Eye,
+  EyeOff,
+  UserCheck,
+  Trash2
 } from 'lucide-react';
 import { Button } from './ui/Button';
 
@@ -19,13 +23,14 @@ interface LoginViewProps {
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAdmin = false }) => {
-  const { login } = useEvalua();
+  const { login, savedSession, loginQuickAccess, clearSavedSession } = useEvalua();
 
-  // Inputs are clean and empty by default (no hardcoded passwords or personal email)
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(savedSession?.email || '');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberSession, setRememberSession] = useState(true);
   const [consentAccepted, setConsentAccepted] = useState(true);
+  const [hideQuickCard, setHideQuickCard] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -41,9 +46,21 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
       return;
     }
 
-    const result = login(email, password, defaultAdmin);
+    const result = login(email, password, defaultAdmin, rememberSession);
     if (!result.success) {
       setErrorMessage(result.error || 'Credenciales no válidas.');
+    }
+  };
+
+  const handleQuickSavedLogin = () => {
+    setErrorMessage(null);
+    if (!consentAccepted) {
+      setErrorMessage('Debe aceptar el consentimiento para tratamiento de datos personales (Ley N° 29733) para continuar.');
+      return;
+    }
+    const result = loginQuickAccess(rememberSession);
+    if (!result.success) {
+      setErrorMessage(result.error || 'No se pudo iniciar sesión.');
     }
   };
 
@@ -146,7 +163,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
                 <div className="relative">
                   <Mail className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    type="text"
+                    type="email"
+                    name="email"
+                    autoComplete="username"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -176,13 +195,23 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
                 <div className="relative">
                   <Lock className="w-4 h-4 text-[#6B7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    autoComplete="current-password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Ingrese su contraseña"
-                    className="w-full pl-10 pr-4 py-3 rounded-md border border-[#D1D5DB] bg-[#F7F8FA] text-sm font-medium text-[#121212] placeholder:text-[#6B7280] focus:outline-hidden focus:bg-white focus:border-[#004481] focus:ring-2 focus:ring-[#004481]/15 transition-colors"
+                    className="w-full pl-10 pr-10 py-3 rounded-md border border-[#D1D5DB] bg-[#F7F8FA] text-sm font-medium text-[#121212] placeholder:text-[#6B7280] focus:outline-hidden focus:bg-white focus:border-[#004481] focus:ring-2 focus:ring-[#004481]/15 transition-colors"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#121212] cursor-pointer p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -225,6 +254,55 @@ export const LoginView: React.FC<LoginViewProps> = ({ onBackToLanding, defaultAd
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
+
+            {/* Acceso directo sin escribir (debajo del formulario) */}
+            {!hideQuickCard && (
+              <div className="pt-5 border-t border-[#E2E6EC] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-semibold text-[#5B6573]">
+                    {savedSession ? 'Sesión guardada en este equipo' : 'Acceso rápido guardado'}
+                  </p>
+                  {savedSession && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearSavedSession();
+                        setHideQuickCard(true);
+                        setEmail('');
+                      }}
+                      title="Quitar sesión guardada"
+                      className="inline-flex items-center gap-1 text-[11px] font-medium text-[#5B6573] hover:text-[#C81E1E] cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Quitar</span>
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleQuickSavedLogin}
+                  className="w-full p-3.5 rounded-lg bg-[#F7F8FA] hover:bg-[#F0F5FA] border border-[#E2E6EC] hover:border-[#004481]/50 text-left transition-colors flex items-center justify-between gap-3 cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-lg bg-[#004481] text-white flex items-center justify-center shrink-0">
+                      <UserCheck className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold text-[#121212] group-hover:text-[#004481] block truncate">
+                        {savedSession?.name || 'Asesor Principal - Huánuco'}
+                      </span>
+                      <span className="text-[11px] text-[#5B6573] font-mono block truncate">
+                        {savedSession?.email || 'zonyukimordonezcaqui@gmail.com'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold text-[#028448] group-hover:underline shrink-0 whitespace-nowrap">
+                    Entrar directo →
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

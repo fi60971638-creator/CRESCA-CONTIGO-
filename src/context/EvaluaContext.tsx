@@ -43,12 +43,24 @@ import {
   computeHierarchicalBalanceSummary
 } from '../utils/financialCalculations';
 
+export interface SavedSessionSummary {
+  userId: string;
+  email: string;
+  name: string;
+  roleTitle: string;
+  savedAt: string;
+}
+
 interface EvaluaContextType {
   // Auth & Roles
   currentUser: User | null;
   users: User[];
+  savedSession: SavedSessionSummary | null;
   setCurrentUser: (user: User | null) => void;
-  login: (email: string, pass: string, asAdmin?: boolean) => { success: boolean; error?: string };
+  login: (email: string, pass: string, asAdmin?: boolean, rememberMe?: boolean) => { success: boolean; error?: string };
+  loginWithSavedSession: () => { success: boolean; error?: string };
+  loginQuickAccess: (rememberMe?: boolean) => { success: boolean; error?: string };
+  clearSavedSession: () => void;
   logout: () => void;
   switchUserRole: (userId: string) => void;
 
@@ -139,7 +151,9 @@ const STORAGE_KEYS = {
   USERS: 'evalua_v2_users',
   DOSSIERS: 'evalua_v2_dossiers',
   AUDIT: 'evalua_v2_audit',
-  FINANCIAL_RECORDS: 'evalua_v2_financial_records'
+  FINANCIAL_RECORDS: 'evalua_v2_financial_records',
+  SAVED_SESSION: 'evalua_v2_saved_session',
+  REMEMBER_PREF: 'evalua_v2_remember_pref'
 };
 
 const LEGACY_USER_EMAILS = new Set([
@@ -207,12 +221,48 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   });
 
+  const [rememberPref, setRememberPref] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.REMEMBER_PREF);
+      return saved === null ? true : saved === 'true';
+    } catch {
+      return true;
+    }
+  });
+
+  const [savedSession, setSavedSession] = useState<SavedSessionSummary | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SAVED_SESSION);
+      if (!saved) return null;
+      const parsed = JSON.parse(saved) as SavedSessionSummary;
+      if (LEGACY_USER_IDS.has(parsed.userId) || LEGACY_USER_EMAILS.has(parsed.email?.toLowerCase())) {
+        return null;
+      }
+      if (parsed.userId === INITIAL_USERS[0].id) {
+        return {
+          ...parsed,
+          email: INITIAL_USERS[0].email,
+          name: INITIAL_USERS[0].name,
+          roleTitle: INITIAL_USERS[0].roleTitle
+        };
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
+  });
+
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-      if (!saved) return null;
-      const parsed = JSON.parse(saved);
+      const localSaved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+      const sessionSaved = sessionStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+      const raw = localSaved || sessionSaved;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as User;
       if (isLegacyUser(parsed)) return null;
+      if (parsed.id === INITIAL_USERS[0].id) {
+        return { ...parsed, email: INITIAL_USERS[0].email, password: INITIAL_USERS[0].password };
+      }
       return parsed;
     } catch {
       return null;
@@ -368,8 +418,34 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Storage Sync
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(currentUser));
-  }, [currentUser]);
+    try {
+      localStorage.setItem(STORAGE_KEYS.REMEMBER_PREF, String(rememberPref));
+      if (!currentUser) {
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+        sessionStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      } else if (rememberPref) {
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(currentUser));
+        sessionStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      } else {
+        sessionStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(currentUser));
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      }
+    } catch {
+      // ignore storage quota errors
+    }
+  }, [currentUser, rememberPref]);
+
+  useEffect(() => {
+    try {
+      if (savedSession) {
+        localStorage.setItem(STORAGE_KEYS.SAVED_SESSION, JSON.stringify(savedSession));
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.SAVED_SESSION);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, [savedSession]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
@@ -400,7 +476,7 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setAuditLogs(prev => [newLog, ...prev]);
   };
 
-  const login = (emailOrUser: string, pass: string, asAdmin?: boolean) => {
+  const login = (emailOrUser: string, pass: string, asAdmin?: boolean, rememberMe = true) => {
     const trimmed = emailOrUser.trim().toLowerCase();
     const cleanPass = pass.trim();
 
@@ -430,9 +506,73 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return { success: false, error: 'Contraseña incorrecta. Verifique sus datos de acceso.' };
     }
 
+    setRememberPref(rememberMe);
+    if (rememberMe) {
+      setSavedSession({
+        userId: target.id,
+        email: target.email,
+        name: target.name,
+        roleTitle: target.roleTitle,
+        savedAt: new Date().toISOString()
+      });
+    } else {
+      setSavedSession(null);
+    }
+
     setCurrentUser(target);
     logAuditEvent('INICIO_SESION', `Usuario ${target.name} (${target.roleTitle}) accedió al sistema.`);
     return { success: true };
+  };
+
+  const loginWithSavedSession = () => {
+    if (!savedSession) {
+      return { success: false, error: 'No hay una sesión guardada en este equipo.' };
+    }
+    const target = users.find(
+      u => u.id === savedSession.userId || u.email.toLowerCase() === savedSession.email.toLowerCase()
+    );
+    if (!target || !target.active) {
+      setSavedSession(null);
+      return { success: false, error: 'La sesión guardada expiró o la cuenta ya no está activa.' };
+    }
+    setRememberPref(true);
+    setCurrentUser(target);
+    logAuditEvent('INICIO_SESION', `Usuario ${target.name} ingresó con sesión guardada.`);
+    return { success: true };
+  };
+
+  const loginQuickAccess = (rememberMe = true) => {
+    const target =
+      (savedSession &&
+        users.find(
+          u => u.id === savedSession.userId || u.email.toLowerCase() === savedSession.email.toLowerCase()
+        )) ||
+      users.find(u => u.id === INITIAL_USERS[0].id || u.role === 'admin');
+
+    if (!target || !target.active) {
+      return { success: false, error: 'La cuenta principal no está disponible.' };
+    }
+
+    setRememberPref(rememberMe);
+    if (rememberMe) {
+      setSavedSession({
+        userId: target.id,
+        email: target.email,
+        name: target.name,
+        roleTitle: target.roleTitle,
+        savedAt: new Date().toISOString()
+      });
+    } else {
+      setSavedSession(null);
+    }
+
+    setCurrentUser(target);
+    logAuditEvent('INICIO_SESION', `Acceso directo de ${target.name} (${target.email}).`);
+    return { success: true };
+  };
+
+  const clearSavedSession = () => {
+    setSavedSession(null);
   };
 
   const logout = () => {
@@ -1141,8 +1281,12 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     () => ({
       currentUser,
       users,
+      savedSession,
       setCurrentUser,
       login,
+      loginWithSavedSession,
+      loginQuickAccess,
+      clearSavedSession,
       logout,
       switchUserRole,
       activeTab,
@@ -1206,6 +1350,7 @@ export const EvaluaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [
       currentUser,
       users,
+      savedSession,
       activeTab,
       activeNavKey,
       activeSubSection,
